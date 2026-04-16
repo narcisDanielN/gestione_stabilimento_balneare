@@ -3,8 +3,15 @@ package com.example.s_balneare.domain.moderation;
 import java.time.Instant;
 
 /// Rappresenta un'azione di ban emessa da un amministratore
-public record Ban(Integer id, Integer bannedId, BanType banType, Integer bannedFromBeachId, Integer adminId,
-                  String reason, Instant createdAt) {
+public record Ban(
+        Integer id,
+        Integer bannedId,
+        BanType banType,
+        Integer bannedFromBeachId,
+        Integer adminId,
+        String reason,
+        Instant createdAt
+) {
     //costruttore compatto per assicurarsi l'integrità dei valori
     public Ban {
         checkBannedId(bannedId);

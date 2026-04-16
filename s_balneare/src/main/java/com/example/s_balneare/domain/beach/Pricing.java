@@ -52,12 +52,12 @@ public record Pricing(
 
     //pattern Builder
     public static class Builder {
-        private Integer id;
-        private double priceLettino;
-        private double priceSdraio;
-        private double priceSedia;
-        private double priceParking;
-        private double priceCamerino;
+        private Integer id = 0;
+        private double priceLettino = 0.0;
+        private double priceSdraio = 0.0;
+        private double priceSedia = 0.0;
+        private double priceParking = 0.0;
+        private double priceCamerino = 0.0;
 
         public Builder() {
         }

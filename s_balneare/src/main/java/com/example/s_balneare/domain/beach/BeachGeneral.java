@@ -1,7 +1,11 @@
 package com.example.s_balneare.domain.beach;
 
 /// Contiene gli attributi generali di una spiaggia
-public record BeachGeneral(String name, String description, String phoneNumber) {
+public record BeachGeneral(
+        String name,
+        String description,
+        String phoneNumber
+) {
     //costruttore
     public BeachGeneral(String name, String description, String phoneNumber) {
         validateName(name);

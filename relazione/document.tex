@@ -42,7 +42,7 @@
 }
 
 \title{Ingegneria del Software \\ \Large SunSpot: Gestionale per la prenotazione digitale di stabilimenti balneari} 
-\author{Soldani Leonardo - 7139732 \\ Neantu Narcis Daniel - 7133414}
+\author{Soldani Leonardo - 7139732 \\ Neamtu Narcis Daniel - 7133414}
 \date{Marzo 2026} 
 
 \begin{document}
@@ -100,6 +100,14 @@ L'applicazione è stata sviluppata utilizzando le seguenti tecnologie:
     \item \textbf{JUnit 5.12.1} - Framework per l'esecuzione dei test unitari.
     \item \textbf{Mockito 5.23.0} - Utilizzato per la simulazione di dipendenze durante i test (mocking).
     \item \textbf{JUnit Platform Suite} - Strumento per l'organizzazione e l'esecuzione dei test.
+\end{itemize}
+
+\subsection{Intelligenza artificiale}
+A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguistici \textit{Gemini 3} e \textit{Gemini 3.1}. L'impiego di tali strumenti si è concentrato sui seguenti ambiti:
+\begin{itemize}
+	\item \textbf{Achitettura progetto}: una volta definiti gli UML alla base del nostro progetto abbiamo consultato i modelli per un  confronto critico sui pattern architetturali (\cref{cap:Progettazione}) più idonei al nostro  contesto applicativo.
+	\item  \textbf{Generazione codice ripetitivo}: al fine di ottimizzare i tempi di sviluppo, l'intelligenza artificiale è stata utilizzata per la generazione di codice strutturale e ripetitivo (es. pattern \textit{Builder}). Ha inoltre fornito spunti per soluzioni alternative in componenti critici, come nel caso del \textit{TransactionManager}. L'utilizzo è sempre stato posto sotto controllo umano al fine di garantire l'integrità del codice e la corretta organizzazione di quest'ultimo.
+	\item \textbf{Testing}: i modelli sono stati impiegati come supporto per la stesura dei casi di test e per una verifica finale sulla copertura e completezza della suite di testing, assicurando una maggiore robustezza al software prodotto.
 \end{itemize}
 
 \section{Use Cases}
@@ -183,6 +191,7 @@ Di seguito (\cref{fig:UseCases}) è riportato il diagramma degli Use Cases del p
 \end{figure}
 
 \section{Progettazione}
+\label{cap:Progettazione}
 
 \newpage
 

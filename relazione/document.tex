@@ -3,7 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
 \usepackage[T1]{fontenc}
-\usepackage[margin=2.5cm]{geometry} % Margini aumentati per migliore leggibilità
+\usepackage[a4paper, margin=2.5cm]{geometry} % Margini aumentati per migliore leggibilità
 \usepackage{subcaption} 
 \usepackage[colorlinks=true, linkcolor=black]{hyperref}
 \usepackage{float}
@@ -15,21 +15,52 @@
 \usepackage{xcolor}      
 \usepackage{tabularray}  
 \usepackage[italian]{cleveref}
+\usepackage{booktabs}            	% Per tabelle
+\usepackage{textcomp}			 	% Per usare il simbolo trademark o registered
+\usepackage{titling}			 	% Per inserire il logo UNIFI a inizio pagina
+\usepackage{fancyhdr}			 	% Per avere un header ad ogni pagina
 \usepackage{lmodern}       % Font pulito (Latin Modern)
 \usepackage{microtype}     % Fondamentale: aggiusta gli spazi tra le lettere per evitare che il testo esca dai bordi
 \usepackage{parskip} % Risolve il problema dell'indentazione mista (vedi spiegazione sotto)
+\usepackage{bm}						% Grassetto per formule matematiche
+\usepackage{caption}				% Per le didascalie alle immagini
+\usepackage{hyperref}				% Per gli hyperlink ai vari capitoli dall'indice
+
+\pagestyle{fancy}
 
 \graphicspath{{img/}}
 
-\captionsetup[figure]{font=small, labelfont=bf, position=top, margin=1cm}
+\captionsetup{
+	justification=centering, 
+	font=small
+}
 
-\title{Ingegneria del Software\\ \Large SunSpot: Gestionale per la prenotazione digitale di stabilimenti balneari} 
-\author{Leonardo Soldani - 7139732}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	urlcolor=black
+}
+
+\title{Ingegneria del Software \\ \Large SunSpot: Gestionale per la prenotazione digitale di stabilimenti balneari} 
+\author{Soldani Leonardo - 7139732 \\ Neantu Narcis Daniel - 7133414}
 \date{Marzo 2026} 
 
 \begin{document}
 
-\maketitle
+\makeatletter
+\begin{titlepage}
+	\centering
+	\vspace*{1cm}
+	\includegraphics[width=0.7\textwidth]{img/logoUnifi}
+	\vfill
+	{\huge \bfseries \@title\par}
+	\vfill
+	{\Large \@author\par}
+	\vspace{2cm}
+\end{titlepage}
+\makeatother
+
+\newpage
 
 \renewcommand{\contentsname}{Indice}
 \tableofcontents

@@ -87,7 +87,8 @@
 \setcounter{page}{1}
 
 \section{Introduzione}
-Il progetto SunSpot nasce dall'esigenza di digitalizzare e modernizzare il settore degli stabilimenti balneari, un ambito che ancora oggi mostra una certa resistenza all'adozione di piattaforme web integrate. L'obiettivo principale è fornire un'infrastruttura capace di permettere all'utente di prenotare in modo rapido e intuitivo un ombrellone presso uno dei lidi aderenti al servizio, trasformando la pianificazione di una giornata al mare in un'operazione a portata di click, offrendo al contempo ai gestori uno strumento completo per il controllo della propria attività.
+Il progetto SunSpot nasce dall'esigenza di digitalizzare e modernizzare il settore degli stabilimenti balneari, un ambito che ancora oggi mostra una certa resistenza all'adozione di piattaforme web integrate.
+\newline L'obiettivo principale è fornire un'infrastruttura capace di permettere all'utente di prenotare in modo rapido e intuitivo un ombrellone presso uno dei lidi aderenti al servizio, trasformando la pianificazione di una giornata al mare in un'operazione a portata di click, offrendo al contempo ai gestori uno strumento completo per il controllo della propria attività.
 
 Per garantire un ecosistema sicuro e affidabile, SunSpot integra un sistema di regolazione basato su recensioni verificate e un meccanismo di segnalazione (report) tra utenti e gestori, volto a preservare l'integrità del servizio e a migliorare costantemente l'esperienza d'uso per tutti gli attori coinvolti.
 
@@ -122,7 +123,7 @@ L'applicazione è stata sviluppata utilizzando le seguenti tecnologie:
 \subsection{Intelligenza artificiale}
 A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguistici \textit{Gemini 3} e \textit{Gemini 3.1}. L'impiego di tali strumenti si è concentrato sui seguenti ambiti:
 \begin{itemize}
-	\item \textbf{Architettura progetto}: una volta definiti gli UML alla base del nostro progetto abbiamo consultato i modelli per un  confronto critico sui pattern architetturali (\cref{cap:Progettazione}) più idonei al nostro  contesto applicativo.
+	\item \textbf{Architettura progetto}: una volta definiti gli UML alla base del nostro progetto, abbiamo consultato i modelli per un confronto critico sui pattern architetturali (\autoref{cap:Progettazione}) più idonei al nostro contesto applicativo.
 	\item  \textbf{Generazione codice ripetitivo}: al fine di ottimizzare i tempi di sviluppo, l'intelligenza artificiale è stata utilizzata per la generazione di codice strutturale e ripetitivo (es. pattern \textit{Builder}). Ha inoltre fornito spunti per soluzioni alternative in componenti critici, come nel caso del \textit{TransactionManager}. L'utilizzo è sempre stato posto sotto controllo umano al fine di garantire l'integrità del codice e la corretta organizzazione di quest'ultimo.
 	\item \textbf{Testing}: i modelli sono stati impiegati come supporto per la stesura dei casi di test e per una verifica finale sulla copertura e completezza della suite di testing, assicurando una maggiore robustezza al software prodotto.
 \end{itemize}
@@ -134,15 +135,15 @@ A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguisti
 Il programma coinvolge tre attori principali: Customer, Owner e Admin. Ciascuno di essi ha la possibilità di effettuare azioni specifiche per il proprio ruolo:
 
 \begin{itemize}
-	\item \textbf{Customer}: utente finale dell'applicazione, ha la possibilità di effettuare prenotazioni scegliendo l'ombrellone desiderato; può richiedere inoltre servizi extra come lettini, sdraio e sedie, o la prenotazione di un camerino. Questa tipologia di utente può rilasciare un'unica recensione per ogni spiaggia presso cui ha prenotato e può inviare un report (segnalazione) agli admin qualora riscontri violazioni delle linee guida da parte di uno stabilimento.
-	\item \textbf{Owner}:gestore dello stabilimento balneare, ha il compito di configurare il proprio lido partendo dalla segnalazione dei servizi comuni, passando per l'organizzazione geografica della spiaggia in zone con diverse fasce di prezzo, fino alla possibilità di definire stagionalità con diverse tariffe. Può inoltre effettuare un report nei confronti dei customer che hanno tenuto comportamenti scorretti, come ad esempio il mancato rispetto di una prenotazione.
-	\item \textbf{Admin}: è colui che svolge il ruolo di gestore dell'ambiente commerciale offerto dall'applicazione, accogliendo i report e valutandoli tramite l'accesso alla cronologia dei report inviati e ricevuti dagli utenti, con la possibilità di accettarli o rifiutarli. Al fine di gestire l'ambiente, l'admin utilizza lo strumento del ban, che può colpire sia i customer che gli owner/spiagge. Il ban può essere di due tipi: da una singola spiaggia (solo per i customer) oppure dall'intera applicazione (per entrambi).
+	\item \textbf{Customer}: utente finale dell'applicazione. Ha la possibilità di effettuare prenotazioni scegliendo l'ombrellone desiderato; può richiedere inoltre servizi extra come lettini, sdraio e sedie, o la prenotazione di un camerino. Questa tipologia di utente può rilasciare un'unica recensione per ogni spiaggia presso cui ha prenotato e può inviare una segnalazione (report) agli admin qualora riscontri violazioni delle linee guida da parte di uno stabilimento.
+	\item \textbf{Owner}: gestore dello stabilimento balneare. Ha il compito di configurare il proprio lido partendo dalla segnalazione dei servizi comuni, passando per l'organizzazione geografica della spiaggia in zone con diverse fasce di prezzo, fino alla possibilità di definire stagionalità con diverse tariffe. Può inoltre effettuare un report nei confronti dei customer che hanno tenuto comportamenti scorretti, come ad esempio il mancato rispetto di una prenotazione.
+	\item \textbf{Admin}: è colui che svolge il ruolo di gestore dell'ambiente commerciale offerto dall'applicazione, accogliendo i report e valutandoli tramite l'accesso alla cronologia dei report inviati e ricevuti dagli utenti, con la possibilità di accettarli o rifiutarli. Al fine di gestire l'ambiente, l'admin utilizza lo strumento del ban, che può colpire sia i customer che gli owner/spiagge. Il ban può essere di due tipi: da una singola spiaggia (applicabile solo ai customer) oppure dall'intera applicazione (applicabile a entrambi).
 \end{itemize}
 
 \subsection{Descrizione Use Cases}
-Il programma si pone l'obiettivo di implementare un'applicazione a scopi commerciali, di conseguenza l'azione di eliminare prenotazioni, spiagge, utenti ed altre informazioni di natura fiscale risulterebbe un comportamento superficiale da parte dei programmatori. Per questo motivo, il sistema non prevede l'eliminazione fisica di record sensibili, ma utilizza un meccanismo di disattivazione logica.
+Il programma si pone l'obiettivo di implementare un'applicazione a scopi commerciali; di conseguenza l'azione di eliminare prenotazioni, spiagge, utenti ed altre informazioni di natura fiscale risulterebbe un comportamento superficiale da parte dei programmatori. Per questo motivo, il sistema non prevede l'eliminazione fisica di record sensibili, ma utilizza un meccanismo di disattivazione logica.
 
-Di seguito (\cref{fig:UseCases}) è riportato il diagramma degli Use Cases del progetto, nelle sezioni successive verranno analizzati nel dettaglio i flussi più rilevanti.
+Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases del progetto, nelle sezioni successive verranno analizzati nel dettaglio i flussi più rilevanti.
 \begin{figure}[H] 
     \centering
     \makebox[\textwidth][c]{
@@ -207,6 +208,8 @@ Di seguito (\cref{fig:UseCases}) è riportato il diagramma degli Use Cases del p
     \label{fig:UC11}
 \end{figure}
 
+\newpage
+
 \section{Progettazione}
 \label{cap:Progettazione}
 
@@ -216,20 +219,21 @@ Di seguito (\cref{fig:UseCases}) è riportato il diagramma degli Use Cases del p
 Per lo sviluppo di SunSpot sono stati adottati diversi pattern volti a garantire un'architettura robusta, testabile e facilmente manutenibile, separando nettamente le responsabilità tra logica di business e dettagli implementativi.
 
 \subsubsection{Architettura Esagonale (Ports \& Adapters)}
-Il progetto SunSpot adotta i principi dell'Architettura Esagonale per garantire una separazione chirurgica delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{Core}), composto dai package \texttt{domain} e \texttt{application}, e un perimetro esterno composto dagli \textbf{Adapters} nel package \texttt{infrastructure}.
+Il progetto SunSpot adotta i principi dell'Architettura Esagonale per garantire una separazione chirurgica delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{Core}), composto dai package \texttt{domain} e \texttt{application}, e un perimetro esterno, composto dagli \textbf{Adapters} nel package \texttt{infrastructure}.
 
 Lo strato di \textbf{Application} funge da ponte tra il mondo esterno e il dominio, ed è suddiviso in due componenti fondamentali:
 \begin{itemize}
     \item \textbf{Ports (Interfacce)}: rappresentano i contratti di comunicazione dell'esagono. Si distinguono in:
     \begin{itemize}
-        \item \textbf{Port-In (Driving Ports)}: definiscono i casi d'uso e le azioni che gli attori esterni possono richiedere al sistema (es. \cref{lst:UseCase}).
-        \item \textbf{Port-Out (Driven Ports)}: definiscono i requisiti infrastrutturali necessari al core per funzionare (es. \cref{lst:Repository}).
+        \item \textbf{Port-In (Driving Ports)}: definiscono i casi d'uso e le azioni che gli attori esterni possono richiedere al sistema (es. \autoref{lst:UseCase}).
+        \item \textbf{Port-Out (Driven Ports)}: definiscono i requisiti infrastrutturali necessari al core per funzionare (es. \autoref{lst:Repository}).
     \end{itemize}
     
     \item \textbf{Services (Orchestratori)}: rappresentano le implementazioni concrete delle Port-In. Il loro ruolo è quello di \textbf{orchestratori dei casi d'uso}: un Service riceve un comando, recupera i dati necessari tramite le Port-Out, delega la logica decisionale e di validazione alle entità del \texttt{domain} e infine persiste i cambiamenti tramite le Port-Out. Il Service non contiene logica di business, ma si occupa esclusivamente di coordinare il flusso operativo e gestire l'integrità delle transazioni.
 \end{itemize}
 
-Grazie a questa struttura, il sistema gode di una straordinaria resilienza: l'utilizzo delle interfacce assicura che il \textbf{disaccoppiamento} sia totale. Nel nostro caso, l'adattatore \texttt{InfrastructureJdbc} contiene il codice specifico per interagire con il database MySQL; se in futuro fosse necessario migrare verso un diverso sistema di persistenza o un servizio cloud, sarebbe sufficiente sviluppare un nuovo Adapter senza dover modificare una singola riga di codice nel Core applicativo.
+Grazie a questa struttura, il sistema gode di una straordinaria resilienza: l'utilizzo delle interfacce assicura che il \textbf{disaccoppiamento} sia totale. Nel nostro caso, gli adattatori contenuti nel package \texttt{infrastructure.persistence.jdbc} contengono il codice specifico per interagire con il database MySQL.
+\newline Se in futuro fosse necessario migrare verso un diverso sistema di persistenza o un servizio cloud, sarebbe sufficiente sviluppare un nuovo Adapter senza dover modificare una singola riga di codice nel Core applicativo.
 
 \begin{lstlisting}[caption={Esempio Port-In}, label={lst:UseCase}]
 
@@ -243,15 +247,15 @@ Grazie a questa struttura, il sistema gode di una straordinaria resilienza: l'ut
 
 \end{lstlisting}
 
-\subsubsection{DDD Light (Domain-Driven Design)}
-A integrazione dell'architettura esagonale, è stato adottato l'approccio \textbf{DDD Light}. Mentre l'esagonale definisce i confini, il DDD stabilisce che il nucleo del progetto deve riflettere il linguaggio e le regole della realtà modellata. 
+\subsubsection{DDD-lite (Domain-Driven Design)}
+A integrazione dell'architettura esagonale, è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'esagonale definisce i confini, il DDD stabilisce che il nucleo del progetto deve riflettere il linguaggio e le regole della realtà modellata. 
 
 Il cuore di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio le entità hanno il compito di assicurarsi l'integrità dei dati sia in fase di modifica che di istanziazione. Ad esempio, la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato.
 
 In questa architettura abbiamo distinto:
 \begin{itemize}
-    \item \textbf{Entities}: oggetti con un'identità univoca che persiste nel tempo (es. \cref{lst:Entities}).
-    \item \textbf{Value Objects}: oggetti definiti dai propri attributi e immutabili, implementati tramite i \textbf{Java Records} (es. \cref{lst:ValueObjects}).
+    \item \textbf{Entities}: oggetti con un'identità univoca che persiste nel tempo (es. \autoref{lst:Entities}).
+    \item \textbf{Value Objects}: oggetti definiti dai propri attributi e immutabili, implementati tramite i \textbf{Java Records} (es. \autoref{lst:ValueObjects}).
 \end{itemize}
 
 \begin{lstlisting}[caption={Esempio Entities}, label={lst:Entities}]
@@ -263,11 +267,11 @@ In questa architettura abbiamo distinto:
 \end{lstlisting}
 
 \subsubsection{Builder Pattern}
-Il pattern Builder è stato utilizzato per gestire l'istanziazione di classi caratterizzate da un elevato numero di parametri e attributi opzionali, evitando costruttori eccessivamente complessi e verbosi. Tramite una classe interna statica la costruzione dell'oggetto avviene in modo guidato e leggibile (es. \cref{lst:ValueObjects}).
+Il pattern Builder è stato utilizzato per gestire l'istanziazione di classi caratterizzate da un elevato numero di parametri e attributi opzionali, evitando costruttori eccessivamente complessi e verbosi. Tramite una classe interna statica la costruzione dell'oggetto avviene in modo guidato e leggibile (es. \autoref{lst:ValueObjects}).
 
 Il pattern è stato applicato a classi come \texttt{Address}, \texttt{Spot}, \texttt{Zone} e ai record associati a \texttt{Booking} e \texttt{Beach}. Nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi su diversi record tematici, ciascuno dei quali viene istanziato tramite il proprio builder. Questo ci permette di gestire con estrema facilità la configurazione di parametri non obbligatori, mantenendo il codice pulito e uniforme in tutto il progetto.
 
-
+\newpage
 \subsection{Struttura del codice}
 
 La struttura della directory del progetto è stata organizzata in base alla separazione dei package di Java e seguendo i principi dell'architettura software a livelli, descritta precedentemente.
@@ -305,7 +309,8 @@ La struttura della directory del progetto è stata organizzata in base alla sepa
 \end{verbatim}
 
 
-La directory dei test rispecchia la struttura principale per mantenere gli unit test organizzati (con package paralleli come \texttt{application} e \texttt{domain} e le relative Test Suite). L'adozione di queste pratiche garantisce un progetto chiaro, strutturato e facilmente manutenibile, evitando al contempo problemi legati alla visibilità dei package.
+
+La directory dei test rispecchia la struttura principale per mantenere gli Unit Test organizzati (con package paralleli come \texttt{application} e \texttt{domain} e le relative Test Suite). L'adozione di queste pratiche garantisce un progetto chiaro, strutturato e facilmente manutenibile, evitando al contempo problemi legati alla visibilità dei package.
 
 Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}) , i casi d'uso (\texttt{application}) e la gestione dei dati e interazioni con il database (\texttt{infrastructure}). Questo approccio strutturato assicura che ogni componente del sistema abbia una responsabilità ben definita, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre, facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
 

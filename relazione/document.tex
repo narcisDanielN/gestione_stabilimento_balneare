@@ -1,6 +1,7 @@
 \documentclass[a4paper,11pt]{article}
 
 \usepackage[utf8]{inputenc}
+\usepackage{adjustbox}
 \usepackage[italian]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[a4paper, margin=2.5cm]{geometry}
@@ -26,18 +27,16 @@
 % Definizione dello stile per Java
 \lstset{
     language=Java,
-    basicstyle=\ttfamily\small,      % Font monospaziato piccolo
+    basicstyle=\ttfamily\small,
     keywordstyle=\color{blue}\bfseries,
     commentstyle=\color{green!60!black},
     stringstyle=\color{orange},
-    numbers=left,                    % Numeri di riga a sinistra
-    numberstyle=\tiny\color{gray},
-    stepnumber=1,
-    breaklines=true,                 % Va a capo automaticamente
-    frame=single,                    % Cornice intorno al codice
-    backgroundcolor=\color{gray!5},  % Sfondo grigio chiarissimo
-    tabsize=2,
-    showstringspaces=false
+    numbers=none,                    % <--- CAMBIA DA left A none QUI
+    breaklines=true,
+    frame=single,
+    backgroundcolor={},
+    showstringspaces=false,
+    escapeinside={(*@}{@*)}          % <--- ASSICURATI CHE CI SIA
 }
 
 \usepackage[colorlinks=true, linkcolor=black, urlcolor=black]{hyperref}	
@@ -219,38 +218,64 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
 Per lo sviluppo di SunSpot sono stati adottati diversi pattern volti a garantire un'architettura robusta, testabile e facilmente manutenibile, separando nettamente le responsabilità tra logica di business e dettagli implementativi.
 
 \subsubsection{Architettura Esagonale (Ports \& Adapters)}
-Il progetto SunSpot adotta i principi dell'Architettura Esagonale per garantire una separazione chirurgica delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{Core}), composto dai package \texttt{domain} e \texttt{application}, e un perimetro esterno, composto dagli \textbf{Adapters} nel package \texttt{infrastructure}.
+Il progetto SunSpot adotta i principi dell'Architettura Esagonale per garantire una separazione  delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{Core}), composto dai package \texttt{domain} e \texttt{application}, e un perimetro esterno, composto dagli \textbf{Adapters} nel package \texttt{infrastructure}.
 
-Lo strato di \textbf{Application} funge da ponte tra il mondo esterno e il dominio, ed è suddiviso in due componenti fondamentali:
+Lo strato di \textbf{Application} funge da ponte tra il mondo esterno e il dominio ed è suddiviso in due componenti fondamentali:
 \begin{itemize}
     \item \textbf{Ports (Interfacce)}: rappresentano i contratti di comunicazione dell'esagono. Si distinguono in:
     \begin{itemize}
         \item \textbf{Port-In (Driving Ports)}: definiscono i casi d'uso e le azioni che gli attori esterni possono richiedere al sistema (es. \autoref{lst:UseCase}).
-        \item \textbf{Port-Out (Driven Ports)}: definiscono i requisiti infrastrutturali necessari al core per funzionare (es. \autoref{lst:Repository}).
+        \item \textbf{Port-Out (Driven Ports)}: definiscono i requisiti infrastrutturali necessari al (\textbf{Core}) per funzionare (es. \autoref{lst:Repository}).
     \end{itemize}
     
     \item \textbf{Services (Orchestratori)}: rappresentano le implementazioni concrete delle Port-In. Il loro ruolo è quello di \textbf{orchestratori dei casi d'uso}: un Service riceve un comando, recupera i dati necessari tramite le Port-Out, delega la logica decisionale e di validazione alle entità del \texttt{domain} e infine persiste i cambiamenti tramite le Port-Out. Il Service non contiene logica di business, ma si occupa esclusivamente di coordinare il flusso operativo e gestire l'integrità delle transazioni.
 \end{itemize}
 
-Grazie a questa struttura, il sistema gode di una straordinaria resilienza: l'utilizzo delle interfacce assicura che il \textbf{disaccoppiamento} sia totale. Nel nostro caso, gli adattatori contenuti nel package \texttt{infrastructure.persistence.jdbc} contengono il codice specifico per interagire con il database MySQL.
-\newline Se in futuro fosse necessario migrare verso un diverso sistema di persistenza o un servizio cloud, sarebbe sufficiente sviluppare un nuovo Adapter senza dover modificare una singola riga di codice nel Core applicativo.
+Grazie a questa struttura, il sistema gode di una notevole resilienza; l'utilizzo delle interfacce assicura che il \textbf{disaccoppiamento} sia totale. Se in futuro fosse necessario migrare verso un diverso sistema di persistenza o un servizio cloud, sarebbe sufficiente sviluppare un nuovo Adapter senza dover modificare il codice nel Core applicativo.
 
-\begin{lstlisting}[caption={Esempio Port-In}, label={lst:UseCase}]
-
+\begin{lstlisting}[caption={Esempio Port-In (Contratto dei casi d'uso)}, label={lst:UseCase}]
+public interface BookingUseCase {
+    void confirmBooking(Integer id);
+    void cancelBooking(Integer id);
+    
+    // ... altri metodi omessi ...
+    List<Booking> getCustomerBookings(Integer customerId);
+}
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Esempio Port-Out}, label={lst:Repository}]
+\begin{lstlisting}[caption={Esempio Port-Out (Requisiti verso il Database)}, label={lst:Repository}]
+public interface BookingRepository {
+    Integer save(Booking booking, TransactionContext context);
+    void update(Booking booking, TransactionContext context);
 
+    Optional<Booking> findById(Integer id, TransactionContext context);
+    List<Integer> findOccupiedSpots(Integer beachId, LocalDate date, TransactionContext context);
+}
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Esempio Service}, label={lst:Service}]
+\begin{lstlisting}[caption={Esempio Service (Orchestrazione e Transazionalità)}, label={lst:Service}]
+public class BookingService implements BookingUseCase {
+    // ... attributi e costruttore (Dependency Injection) ...
+    
+    @Override
+    public void confirmBooking(Integer id) {
+        transactionManager.executeInTransaction(context -> {
+            Booking booking = getBookingOrThrow(id, context);
 
+            // Delegazione della logica di validazione al Dominio
+            booking.confirmBooking();
+
+            // Persistenza dello stato modificato
+            bookingRepository.update(booking, context);
+        });
+    }
+ }   
 \end{lstlisting}
 
 \subsubsection{DDD-lite (Domain-Driven Design)}
-A integrazione dell'architettura esagonale, è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'esagonale definisce i confini, il DDD stabilisce che il nucleo del progetto deve riflettere il linguaggio e le regole della realtà modellata. 
+A integrazione dell'architettura esagonale, è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'esagonale definisce i confini, il \textbf{DDD} stabilisce che il nucleo del progetto deve riflettere il linguaggio e le regole della realtà modellata. 
 
-Il cuore di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio le entità hanno il compito di assicurarsi l'integrità dei dati sia in fase di modifica che di istanziazione. Ad esempio, la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato.
+Il cuore di questo approccio è il \textbf{Rich Domain Model}; a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio le entità hanno il compito di assicurarsi l'integrità dei dati sia in fase di modifica che di instanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato.
 
 In questa architettura abbiamo distinto:
 \begin{itemize}
@@ -258,18 +283,78 @@ In questa architettura abbiamo distinto:
     \item \textbf{Value Objects}: oggetti definiti dai propri attributi e immutabili, implementati tramite i \textbf{Java Records} (es. \autoref{lst:ValueObjects}).
 \end{itemize}
 
-\begin{lstlisting}[caption={Esempio Entities}, label={lst:Entities}]
+\newpage
+ \begin{lstlisting}[caption={Esempio Entity (Integrità dello stato e logica di business)}, label={lst:Entities}]
+public class Beach {
+    private final Integer id; // Identita univoca
+    private BeachInventory beachInventory; // Value Object composito
+    private boolean active;
+    private boolean closed;
 
+    // ... costruttore omesso ...
+
+    // Metodo di dominio con validazione interna
+    public void setActive(boolean active) {
+        if (active) {
+            validateActivationRequirements();
+        }
+        this.active = active;
+    }
+
+    private void validateActivationRequirements() {
+        if (beachInventory == null) throw new IllegalStateException("Missing inventory");
+        // ... altri controlli di business ...
+    }
+}
 \end{lstlisting}
+ 
+Un aspetto centrale nella progettazione è la gestione del ciclo di vita dei \textbf{Value Objects}, improntata alla massima protezione dello stato tramite due principi cardine:
 
-\begin{lstlisting}[caption={Esempio Value Objects}, label={lst:ValueObjects}]
+\begin{itemize}
+    \item \textbf{Ricostruzione del Modello}: Le entità non vengono semplicemente "lette" dal database, ma \textit{ricostituite}. Lo strato di persistenza fornisce i dati affinché il Core possa istanziare nuovamente l'entità, garantendo che i vincoli vengano verificati nel momento stesso della creazione in memoria.
+    \item \textbf{Metodi Wither e Immutabilità}: Invece di alterare lo stato di un'istanza esistente tramite \textit{setter}, le modifiche generano una \textbf{nuova istanza} dell'oggetto (\autoref{lst:ValueObjects}). Questo garantisce l'immutabilità durante il ciclo di vita in memoria, facilitando il debugging e assicurando la consistenza tra gli strati applicativi.
+\end{itemize}
 
+\begin{lstlisting}[caption={Value Object: Integrità alla creazione e pattern Wither}, label={lst:ValueObjects}]
+public record BeachInventory(int countExtraSdraio, int countCamerini) {
+    
+    // Costruttore compatto per validare le regole di business
+    public BeachInventory {
+        if (countExtraSdraio < 0 || countCamerini < 0) {
+            throw new IllegalArgumentException("ERROR: counts cannot be negative");
+        }
+    }
+
+    // Metodo Wither: crea una nuova istanza immutabile con un dato aggiornato
+    public BeachInventory withCountCamerini(int countCamerini) {
+        return new BeachInventory(this.countExtraSdraio, countCamerini);
+    }
+}
 \end{lstlisting}
 
 \subsubsection{Builder Pattern}
-Il pattern Builder è stato utilizzato per gestire l'istanziazione di classi caratterizzate da un elevato numero di parametri e attributi opzionali, evitando costruttori eccessivamente complessi e verbosi. Tramite una classe interna statica la costruzione dell'oggetto avviene in modo guidato e leggibile (es. \autoref{lst:ValueObjects}).
+Il pattern Builder è stato utilizzato per gestire l'instanziamento di classi caratterizzate da un elevato numero di parametri e attributi opzionali, evitando costruttori eccessivamente complessi e verbosi. Tramite una classe interna statica la costruzione dell'oggetto avviene in modo guidato e leggibile (es. \autoref{lst:Builder}).
 
-Il pattern è stato applicato a classi come \texttt{Address}, \texttt{Spot}, \texttt{Zone} e ai record associati a \texttt{Booking} e \texttt{Beach}. Nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi su diversi record tematici, ciascuno dei quali viene istanziato tramite il proprio builder. Questo ci permette di gestire con estrema facilità la configurazione di parametri non obbligatori, mantenendo il codice pulito e uniforme in tutto il progetto.
+Il pattern è stato applicato a classi come \texttt{Address}, \texttt{Spot}, \texttt{Zone} e ai record associati a \texttt{Booking} e \texttt{Beach}. Nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi in diversi record tematici, ciascuno dei quali viene istanziato tramite il proprio builder. Questo
+ permette di gestire con estrema facilità la configurazione di parametri non obbligatori, mantenendo il codice pulito e uniforme in tutto il progetto.
+ 
+ \begin{lstlisting}[caption={Implementazione del pattern Builder su un Value Object}, label={lst:Builder}]
+public static class Builder {
+    private int countExtraSdraio = 0;
+    private int countCamerini = 0;
+
+    public Builder countExtraSdraio(int val) {
+        this.countExtraSdraio = val;
+        return this; // Permette il method chaining
+    }
+
+    public BeachInventory build() {
+        // La validazione avverra automaticamente nel costruttore del Record
+        return new BeachInventory(countExtraSdraio, countCamerini);
+    }
+}
+\end{lstlisting}
+
 
 \newpage
 \subsection{Struttura del codice}
@@ -312,11 +397,202 @@ La struttura della directory del progetto è stata organizzata in base alla sepa
 
 La directory dei test rispecchia la struttura principale per mantenere gli Unit Test organizzati (con package paralleli come \texttt{application} e \texttt{domain} e le relative Test Suite). L'adozione di queste pratiche garantisce un progetto chiaro, strutturato e facilmente manutenibile, evitando al contempo problemi legati alla visibilità dei package.
 
-Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}) , i casi d'uso (\texttt{application}) e la gestione dei dati e interazioni con il database (\texttt{infrastructure}). Questo approccio strutturato assicura che ogni componente del sistema abbia una responsabilità ben definita, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre, facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
+Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}) , i casi d'uso (\texttt{application}) e la gestione dei dati e interazioni con il database (\texttt{infrastructure}). Tale approccio strutturato assicura che ogni componente del sistema abbia una responsabilità ben definita, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
 
 \subsection{Domain}
+Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le regole di business e la modellazione dello stato. In ottemperanza ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
+La struttura gerarchica e relazionale delle entità è sintetizzata nel diagramma UML riportato in \cref{fig:domain_UML}.
+
+Dal punto di vista architetturale, la relazione tra \textbf{Entities} e \textbf{Value Objects} si concretizza tramite il principio della \textit{composizione}: le Entità incapsulano i Value Objects come propri attributi, delegando a questi ultimi la gestione di raggruppamenti logici e immutabili di dati (ad esempio, le informazioni generali o l'inventario di una spiaggia).
+
+Per quanto riguarda la modellazione degli attori principali del sistema (\textit{Customer}, \textit{Owner} e \textit{Admin}), si è optato per un approccio basato sull'\textbf{ereditarietà}. Tutti i ruoli estendono una classe base \texttt{User}, permettendo di centralizzare le funzionalità e le anagrafiche comuni, sfruttando il polimorfismo al fine di semplificare l'estensibilità del codice.
+\begin{figure}[H] 
+    \centering
+    \begin{adjustbox}{max width=1.15\textwidth, max totalheight=0.9\textheight, center}
+        \includegraphics{img/DomainUML}
+    \end{adjustbox}
+    \caption{Domain UML}
+    \label{fig:domain_UML}
+\end{figure}
+
 \subsection{Application}
-\subsection{Infrastructure}
+Il livello applicativo ha  il compito di interconnettere  il cuore del  progetto con  il mondo esterno tramite gli strumenti precedentemente elencati.
+\subsubsection{Port-out}
+Nel  progetto, le \textbf{Port-Out} sono interfacce Java che definiscono i requisiti di persistenza e le interazioni esterne in modo astratto e universale. Questo approccio permette alla logica di business di invocare i metodi necessari senza dipendere dalla reale implementazione tecnologica sottostante. L'implementazione di queste interfacce è affidata al package \texttt{infrastructure.persistence.jdbc}, il quale ha il compito di tradurre le azioni dettate dal dominio in istruzioni JDBC per il database MySQL. Tale package include inoltre diversi \textbf{Record} (evidenziati in rosso nella \cref{fig:PortOut}), utilizzati come strutture dati (DTO) per veicolare le informazioni estratte dal database affinché siano adatte per essere elaborate dai metodi del core applicativo.
+\begin{figure}[H]
+
+    \centering
+
+    % --- RIGA 1: ROOT E BEACH ---
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+out/
+|-- beach/
+|-- booking/
+|-- common/
+|-- moderation/
+|-- review/
+|-- user/
+|-- TransactionManager.java
+\end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+beach/
+|-- BeachCatalogQuery.java
+|-- BeachRepository.java
+|-- (*@\color{red}BeachReviewDto.java@*)
+|-- BeachReviewsQuery.java
+|-- (*@\color{red}BeachSummary.java@*)
+\end{lstlisting}
+    \end{minipage}
+
+    \vspace{0.8cm}
+
+    % --- RIGA 2: BOOKING E USER ---
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+booking/
+|-- AvailabilityQuery.java
+|-- (*@\color{red}BookedInventory.java@*)
+|-- (*@\color{red}BookedParkingSpaces.java@*)
+|-- BookingRepository.java
+\end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+user/
+|-- AdminRepository.java
+|-- AuthenticationUseCase.java
+|-- CustomerRepository.java
+|-- (*@\color{red}LoginResult.java@*)
+|-- OwnerRepository.java
+|-- UserRepository.java
+\end{lstlisting}
+    \end{minipage}
+
+    \vspace{0.8cm}
+
+    % --- RIGA 3: MODERATION E ALTRI ---
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+moderation/
+|-- BanRepository.java
+|-- ReportRepository.java
+\end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+common/
+|-- AddressRepository.java
+
+review/
+|-- ReviewRepository.java
+\end{lstlisting}
+    \end{minipage}
+
+    \caption{Struttura delle Port-Out}
+    \label{fig:PortOut}
+\end{figure}
+Il \textbf{TransactionManager} è l'interfaccia dedicata alla gestione del ciclo di vita delle transazioni, assicurando che il flusso di operazioni sul database rispetti le proprietà \textbf{ACID} (Atomicità, Consistenza, Isolamento e Durata). Il componente implementa il pattern \textbf{Unit of Work} attraverso l'uso di un oggetto \textbf{TransactionContext}. 
+
+Questo contesto, definito tramite un'interfaccia marker, viene condiviso esplicitamente come parametro a ogni metodo delle repository coinvolto nel caso d'uso (es. \texttt{beachRepository.update(beach, context)}). Tale meccanismo garantisce che tutte le operazioni effettuate all'interno di un blocco transazionale siano atomiche: in caso di successo di ogni passaggio, il manager esegue il \textit{commit} dei dati sul database; qualora venisse sollevata un'eccezione (es. un errore di sicurezza o validazione), il manager interviene eseguendo un \textit{rollback} automatico per preservare l'integrità e la consistenza dello stato persistente.
+\subsubsection{Port-in}
+Le \textbf{Port-In} (o \textit{Driving Ports}) rappresentano i punti di ingresso all'esagono applicativo. Esse definiscono formalmente i casi d'uso e le azioni che gli attori esterni (come l'interfaccia utente o sistemi di test) possono richiedere al sistema. 
+
+In questa architettura, le Port-In sono strutturate attraverso due componenti principali:
+\begin{itemize}
+    \item \textbf{UseCase (Interfacce)}: definiscono i contratti delle operazioni di business. Esse dettano quali informazioni sono necessarie per eseguire un'azione e garantiscono che il mondo esterno interagisca con il core solo attraverso canali controllati,
+    \item \textbf{Command e Request (Input Models)}: rappresentati spesso come \textit{Java Record} (evidenziati in rosso nella \autoref{fig:PortIn}), questi oggetti fungono da contenitori di dati immutabili. Il loro compito è veicolare i parametri necessari per l'esecuzione del caso d'uso, permettendo una validazione sintattica preliminare prima che la richiesta raggiunga la logica di business.
+\end{itemize}
+
+L'implementazione concreta di queste interfacce è affidata al livello \textbf{Service}. I servizi orchestrano il flusso chiamando correttamente i metodi definiti dalle Port-Out e delegando le regole decisionali alle entità del dominio, assicurando così che ogni richiesta venga elaborata in modo coerente e sicuro.
+
+\begin{figure}[H]
+    \centering
+
+    % --- RIGA 1: ROOT E BEACH ---
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+in/
+|-- beach/
+|-- booking/
+|-- common/
+|-- moderation/
+|-- review/
+|-- user/
+\end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+beach/
+|-- BrowseBeachUseCase.java
+|-- CloseBeachUseCase.java
+|-- (*@\color{red}CreateBeachCommand.java@*)
+|-- CreateBeachUseCase.java
+|-- ManageBeachUseCase.java
+\end{lstlisting}
+    \end{minipage}
+
+    \vspace{0.8cm}
+
+    % --- RIGA 2: BOOKING E USER ---
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+booking/
+|-- BookingUseCase.java
+|-- (*@\color{red}CreateBookingCommand.java@*)
+|-- CreateBookingUseCase.java
+|-- (*@\color{red}CreateManualBookingCommand.java@*)
+|-- CreateManualBookingUseCase.java
+\end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+user/
+|-- (*@\color{red}CreateAdminRequest.java@*)
+|-- (*@\color{red}CreateCustomerRequest.java@*)
+|-- (*@\color{red}CreateOwnerRequest.java@*)
+|-- (*@\color{red}CreateUserRequest.java@*)
+|-- UserRegistrationUseCase.java
+\end{lstlisting}
+    \end{minipage}
+
+    \vspace{0.8cm}
+
+    % --- RIGA 3: MODERATION E REVIEW ---
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+moderation/
+|-- BanUseCase.java
+|-- (*@\color{red}CreateBanCommand.java@*)
+|-- (*@\color{red}CreateReportCommand.java@*)
+|-- CreateReportUseCase.java
+|-- ManageReportUseCase.java
+\end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+review/
+|-- (*@\color{red}CreateReviewCommand.java@*)
+|-- ReviewUseCase.java
+|-- ViewBeachReviewsUseCase.java
+
+common/
+|-- AddressUseCase.java
+\end{lstlisting}
+    \end{minipage}
+
+    \caption{Struttura delle Port-In}
+    \label{fig:PortIn}
+\end{figure}
+
 \newpage
 
 \section{Database}

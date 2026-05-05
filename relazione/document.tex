@@ -733,6 +733,104 @@ Per ottimizzare i tempi di prototipazione e ottenere un design moderno e respons
 
 \newpage
 
-\section{Testing}
+\section{Unit Testing}
+
+\subsection{Strategia e Obiettivi del Testing}
+La strategia di testing adottata per il sistema si basa sui principi della Test-Driven e Behavior-Driven validation, concentrandosi esclusivamente sui livelli \textit{Domain} e \textit{Application} dell'Architettura Esagonale. L'obiettivo principale è garantire la totale affidabilità delle regole di business e dell'orchestrazione, mantenendo i test rapidi e isolati dall'infrastruttura reale (Database).
+
+Nello specifico, il testing è stato diviso in due macro-aree:
+\begin{itemize}
+	\item \textbf{Domain Layer (Test Puri):} I test sulle entità di dominio (es. \texttt{Beach}, \texttt{Booking}) e sui Value Object verificano il rispetto dei vincoli architetturali (invarianti). Garantiscono che gli oggetti non possano mai essere istanziati in stati inconsistenti (es. coordinate negative, date sovrapposte) e validano la corretta implementazione della macchina a stati (es. transizioni da PENDING a CONFIRMED) senza alcuna dipendenza esterna.
+	\item \textbf{Application Layer (Test con Mock):} I test sui Service verificano la corretta orchestrazione dei casi d'uso. Utilizzando la libreria \textbf{Mockito}, le porte di uscita e il \texttt{TransactionManager} sono stati simulati (\textit{mockati}). Questo ha permesso di testare analiticamente i percorsi di successo (Happy Paths) e le barriere di sicurezza (Sad Paths), come il blocco di operazioni non autorizzate, i conflitti di capienza (Inventario/Parcheggi) e le logiche di rollback, garantendo il pieno rispetto dei requisiti utente.
+\end{itemize}
+
+\subsection{Copertura dei Test: Classi e Metodi}
+
+\subsubsection*{Domain Layer}
+I test di questo layer verificano la pura logica di business, l'integrità dei dati e i vincoli architetturali, senza alcuna dipendenza da framework o database esterni.
+
+\begin{itemize}[leftmargin=*]
+	\item \textbf{Aggregato \texttt{Beach}:}
+	\begin{itemize}[nosep]
+		\item \textit{Integrità e Macchina a Stati:} Validazione dei requisiti minimi per l'attivazione e blocco rigoroso delle modifiche strutturali qualora la spiaggia sia operativa (\texttt{ACTIVE}) o permanentemente chiusa (\texttt{CLOSED}).
+		\item \textit{Logica Temporale (Stagioni):} Verifica dell'algoritmo di anti-sovrapposizione delle date (\textit{Overlap Check}) e dell'impossibilità di accorciare stagioni già definite.
+		\item \textit{Logica Spaziale (Zone):} Test sul blocco di immutabilità che impedisce di eliminare, rinominare o alterare Zone già vincolate a una Stagione esistente.
+	\end{itemize}
+	
+	\item \textbf{Aggregato \texttt{Booking} e \texttt{PriceCalculator}:}
+	\begin{itemize}[nosep]
+		\item \textit{Macchina a Stati e Sicurezza:} Transizioni di stato sicure (\textit{Pending $\rightarrow$ Confirmed $\rightarrow$ Cancelled/Rejected}) e regola di declassamento automatico: ogni modifica ad una prenotazione già confermata forza il ritorno allo stato \textit{Pending}.
+		\item \textit{Integrità dei Dati:} Verifica della differenziazione tra prenotazioni di utenti registrati e chiamanti manuali (pulizia automatica del numero di telefono).
+		\item \textit{Domain Service:} Test rigorosi sul \texttt{PriceCalculator} per garantire che il calcolo del totale incroci correttamente la data, la zona dello spot e il tariffario stagionale, bloccando richieste anomale (es. spot inesistenti o date fuori stagione).
+	\end{itemize}
+	
+	\item \textbf{Gerarchia \texttt{User} (\texttt{Customer}, \texttt{Owner}, \texttt{Admin}):}
+	\begin{itemize}[nosep]
+		\item \textit{Validazione Ereditata:} Test astratti che garantiscono la validazione di email (formato e lunghezza), username e anagrafica per tutte le implementazioni.
+		\item \textit{Comportamenti Specifici:} Gestione corretta dei flag di sicurezza (disattivazione OTP per Owner/Admin) e logica di chiusura permanente dell'account per il Customer.
+	\end{itemize}
+	
+	\item \textbf{Moderazione (\texttt{Ban}, \texttt{Report}, \texttt{Review}):}
+	\begin{itemize}[nosep]
+		\item \textit{Invarianti di Dominio:} Impossibilità di auto-segnalarsi, limiti stringenti sulle valutazioni (1-5 stelle) e controlli temporali (divieto di recensioni o report nel futuro).
+		\item \textit{Coerenza Polimorfica:} Verifica delle dipendenze corrette in base al tipo di Ban (un Ban globale non deve avere ID spiaggia, un Ban locale lo richiede obbligatoriamente).
+	\end{itemize}
+	
+	\item \textbf{Value Objects e Layout (\texttt{Inventory}, \texttt{Services}, \texttt{Pricing}, \texttt{Spot}, ecc.):}
+	\begin{itemize}[nosep]
+		\item \textit{Contratti e Immutabilità:} Difesa assoluta contro valori matematicamente illogici (quantità o prezzi negativi).
+		\item \textit{Pattern Creazionali:} Verifica dell'inizializzazione sicura tramite Static Factories (\texttt{empty()}, \texttt{none()}) e pattern Builder (incluso il costruttore copia).
+		\item \textit{Copie Difensive:} Verifica che liste interne (come l'elenco di Spot in una Zona) non possano essere alterate dall'esterno una volta istanziate.
+	\end{itemize}
+\end{itemize}
+
+\vspace{0.5cm} % Un po' di respiro tra Domain e Application
+
+\subsubsection*{Application Layer (Services)}
+I test di questo layer verificano la corretta orchestrazione dei flussi applicativi, l'integrazione tra aggregati distinti e l'applicazione delle regole di sicurezza, simulando le dipendenze esterne (Database e API) tramite l'uso di \textit{Mock}.
+
+\begin{itemize}[leftmargin=*]
+	\item \textbf{Gestione Spiaggia (\texttt{ManageBeachService}, \texttt{CreateBeachService}, \texttt{CloseBeachService}):}
+	\begin{itemize}[nosep]
+		\item \textit{Creazione e Vincoli:} Verifica del blocco architettonico della relazione 1:1 tra Owner e Beach e salvataggio automatico in stato \textit{Draft} (inattivo) in caso di configurazione parziale (UC-10).
+		\item \textit{Gestione Operativa:} Test sui \textit{Delta Updates} per l'aggiornamento di Inventario e Parcheggi, garantendo che riduzioni di capienza non invalidino prenotazioni future già confermate (UC-11).
+		\item \textit{Ciclo di Vita:} Verifica del processo di attivazione/disattivazione (UC-12) e chiusura irreversibile (UC-13), che garantisce l'annullamento a cascata delle prenotazioni future tramite il \texttt{BookingRepository}.
+	\end{itemize}
+	
+	\item \textbf{Motore di Prenotazione (\texttt{CreateBookingService}, \texttt{BookingService}, \texttt{CreateManualBookingService}):}
+	\begin{itemize}[nosep]
+		\item \textit{Orchestrazione Sicura:} Verifica incrociata (\textit{Cross-Aggregate Validation}) prima del salvataggio: controllo disponibilità residua di parcheggi e inventario, assenza di ban attivi per l'utente, e verifica che gli spot selezionati appartengano effettivamente alla spiaggia richiesta.
+		\item \textit{Prenotazioni Manuali (Owner):} Test del flusso B2B (UC-05 1a) che salta il check dell'utente (Guest calling) e impone l'approvazione automatica (stato \textit{CONFIRMED}).
+		\item \textit{Vincoli Temporali:} Blocco categorico di aggiornamenti, cancellazioni o approvazioni su prenotazioni la cui data coincida con quella odierna o passata.
+	\end{itemize}
+	
+	\item \textbf{Autenticazione e Utenze (\texttt{AuthenticationService}, \texttt{CreateUserService}, \texttt{ManageUserService}):}
+	\begin{itemize}[nosep]
+		\item \textit{Gateway di Sicurezza:} Test completi sul processo di Login (UC-01), che bloccano tentativi di accesso con credenziali errate, account disattivati o ban attivi (sia a livello applicativo che di struttura).
+		\item \textit{Transazioni Atomiche:} Verifica del pattern \textit{Template Method} per la creazione utenti: hashing sicuro della password e rollback automatico in caso di violazione dei vincoli (es. Email/Username duplicati).
+		\item \textit{Gestione Sicura Dati:} Test sulle operazioni sensibili (cambio Email o chiusura account Customer) che richiedono la ri-validazione della password attuale per essere autorizzate.
+	\end{itemize}
+	
+	\item \textbf{Moderazione e Recensioni (\texttt{BanService}, \texttt{CreateReportService}, \texttt{ReviewService}):}
+	\begin{itemize}[nosep]
+		\item \textit{Polimorfismo Sanzionatorio:} Test della logica di Ban che dirama azioni differenti: un \textit{App Ban} elimina tutte le prenotazioni future (per i Customer) o chiude l'intera struttura (per gli Owner), mentre un \textit{Beach Ban} agisce solo a livello locale.
+		\item \textit{Precondizioni Rigorose:} Un utente può lasciare una recensione (UC-07) o un report solo se il sistema certifica (tramite query su \texttt{BookingRepository}) un soggiorno effettivamente completato nel passato e l'assenza di provvedimenti disciplinari attivi.
+		\item \textit{Prevenzione IDOR:} Verifica di sicurezza (Insecure Direct Object Reference) che impedisce a un utente di eliminare una recensione o un report non di sua proprietà.
+	\end{itemize}
+	
+	\item \textbf{Query Services / CQRS (\texttt{BrowseBeachService}, \texttt{ManageReportService}, \texttt{ViewBeachReviewsService}):}
+	\begin{itemize}[nosep]
+		\item \textit{Read Models:} Test focalizzati sull'interrogazione ottimizzata dei dati, verificando la corretta aggregazione dei DTO (es. \texttt{BeachSummary}) filtrati per keyword, paginazione o stato attivo, e l'unione corretta di liste multiple (es. report ricevuti e inviati).
+	\end{itemize}
+\end{itemize}
+
+\subsection{Esecuzione dei Test tramite JUnit 5 Suites}
+Per facilitare l'esecuzione e l'integrazione continua (CI/CD), l'infrastruttura di test è stata organizzata utilizzando la funzionalità \textit{Test Suite} fornita da JUnit 5 (modulo \texttt{junit-platform-suite}). Sono state create tre classi orchestratrici principali:
+
+\begin{enumerate}
+	\item \textbf{\texttt{DomainTestSuite}:} Questa suite include esclusivamente i pacchetti sotto \newline \texttt{com.example.s\_balneare.domain}. È progettata per essere eseguita in pochi millisecondi. Essendo i test di dominio completamente isolati, questa suite viene utilizzata frequentemente durante lo sviluppo attivo per garantire che le modifiche non infrangano le regole matematiche o i vincoli logici degli aggregati.
+	\item \textbf{\texttt{ApplicationTestSuite}:} Questa suite isola i test del pacchetto \newline \texttt{com.example.s\_balneare.application}. Richiede leggermente più memoria a causa dell'inizializzazione del framework Mockito per la simulazione delle porte di uscita, ma garantisce che tutta la logica di orchestrazione, validazione incrociata e gestione delle transazioni funzioni correttamente.
+	\item \textbf{\texttt{AllTestsSuite}:} È la suite globale che esegue in sequenza sia i test di Dominio che quelli Applicativi.
+\end{enumerate}
 
 \end{document}

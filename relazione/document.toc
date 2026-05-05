@@ -30,4 +30,7 @@
 \contentsline {subsection}{\numberline {5.2}Dizionario dei dati}{19}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Tabelle delle Regole}{21}{subsection.5.3}%
 \contentsline {section}{\numberline {6}Mockup}{22}{section.6}%
-\contentsline {section}{\numberline {7}Testing}{25}{section.7}%
+\contentsline {section}{\numberline {7}Unit Testing}{25}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Strategia e Obiettivi del Testing}{25}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Copertura dei Test: Classi e Metodi}{25}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Esecuzione dei Test tramite JUnit 5 Suites}{27}{subsection.7.3}%

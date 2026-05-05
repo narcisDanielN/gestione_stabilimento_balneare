@@ -24,6 +24,16 @@
 \usepackage{caption}				
 \usepackage{listings}
 
+\usepackage[normalem]{ulem}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=false,  
+	pdfborder={0 0 0}   
+}
+
+\let\oldhref\href
+\renewcommand{\href}[2]{\oldhref{#1}{\uline{#2}}}
+
 % Definizione dello stile per Java
 \lstset{
     language=Java,
@@ -31,15 +41,14 @@
     keywordstyle=\color{blue}\bfseries,
     commentstyle=\color{green!60!black},
     stringstyle=\color{orange},
-    numbers=none,                    % <--- CAMBIA DA left A none QUI
+    numbers=none,                   
     breaklines=true,
     frame=single,
     backgroundcolor={},
     showstringspaces=false,
-    escapeinside={(*@}{@*)}          % <--- ASSICURATI CHE CI SIA
+    escapeinside={(*@}{@*)}      
 }
 
-\usepackage[colorlinks=true, linkcolor=black, urlcolor=black]{hyperref}	
 \usepackage[italian]{cleveref}
 
 \pagestyle{fancy}
@@ -49,12 +58,6 @@
 \captionsetup{
 	justification=centering, 
 	font=small
-}
-
-\hypersetup{
-	colorlinks=true,
-	linkcolor=black,
-	urlcolor=black
 }
 
 \title{Ingegneria del Software \\ \Large SunSpot: Gestionale per la prenotazione digitale di stabilimenti balneari} 
@@ -138,6 +141,8 @@ Il programma coinvolge tre attori principali: Customer, Owner e Admin. Ciascuno 
 	\item \textbf{Owner}: gestore dello stabilimento balneare. Ha il compito di configurare il proprio lido partendo dalla segnalazione dei servizi comuni, passando per l'organizzazione geografica della spiaggia in zone con diverse fasce di prezzo, fino alla possibilità di definire stagionalità con diverse tariffe. Può inoltre effettuare un report nei confronti dei customer che hanno tenuto comportamenti scorretti, come ad esempio il mancato rispetto di una prenotazione.
 	\item \textbf{Admin}: è colui che svolge il ruolo di gestore dell'ambiente commerciale offerto dall'applicazione, accogliendo i report e valutandoli tramite l'accesso alla cronologia dei report inviati e ricevuti dagli utenti, con la possibilità di accettarli o rifiutarli. Al fine di gestire l'ambiente, l'admin utilizza lo strumento del ban, che può colpire sia i customer che gli owner/spiagge. Il ban può essere di due tipi: da una singola spiaggia (applicabile solo ai customer) oppure dall'intera applicazione (applicabile a entrambi).
 \end{itemize}
+
+\newpage
 
 \subsection{Descrizione Use Cases}
 Il programma si pone l'obiettivo di implementare un'applicazione a scopi commerciali; di conseguenza l'azione di eliminare prenotazioni, spiagge, utenti ed altre informazioni di natura fiscale risulterebbe un comportamento superficiale da parte dei programmatori. Per questo motivo, il sistema non prevede l'eliminazione fisica di record sensibili, ma utilizza un meccanismo di disattivazione logica.
@@ -399,9 +404,13 @@ La directory dei test rispecchia la struttura principale per mantenere gli Unit 
 
 Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}) , i casi d'uso (\texttt{application}) e la gestione dei dati e interazioni con il database (\texttt{infrastructure.persistence.jdbc}). Tale approccio strutturato assicura che ogni componente del sistema abbia una responsabilità ben definita, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
 
+\newpage
+
 \subsection{Domain}
 Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le regole di business e la modellazione dello stato. In conformità ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
-La struttura gerarchica e relazionale delle entità è sintetizzata nel diagramma UML riportato in \cref{fig:domain_UML}.
+La struttura gerarchica e relazionale delle entità è sintetizzata nel diagramma UML riportato in \autoref{fig:domain_UML}.
+% HO AGGIUNTO QUESTO PARAGRAFINO. SE NON TI PIACE TOGLILO!!!
+Per il diagramma completo, con metodi e attributi di ciascuna classe, si veda \href{run:img/domainUML.pdf}{il seguente PDF}.
 
 Dal punto di vista architetturale, la relazione tra \textbf{Entities} e \textbf{Value Objects} si concretizza tramite il principio della \textit{composizione}: le Entità incapsulano i Value Objects come propri attributi, delegando a questi ultimi la gestione di raggruppamenti logici e immutabili di dati (ad esempio, le informazioni generali o l'inventario di una spiaggia).
 
@@ -409,7 +418,7 @@ Per quanto riguarda la modellazione degli attori principali del sistema (\textit
 \begin{figure}[H] 
     \centering
     \begin{adjustbox}{max width=1.15\textwidth, max totalheight=0.9\textheight, center}
-        \includegraphics{img/DomainUML}
+        \includegraphics{img/UML domain(solo classi).png}
     \end{adjustbox}
     \caption{Domain UML}
     \label{fig:domain_UML}
@@ -418,82 +427,73 @@ Per quanto riguarda la modellazione degli attori principali del sistema (\textit
 \subsection{Application}
 Il livello applicativo ha  il compito di interconnettere  il cuore del  progetto con  il mondo esterno tramite gli strumenti precedentemente elencati.
 \subsubsection{Port-out}
-Nel  progetto, le \textbf{Port-Out} sono interfacce Java che definiscono i requisiti di persistenza e le interazioni esterne in modo astratto e universale. Questo approccio permette alla logica di business di invocare i metodi necessari senza dipendere dalla reale implementazione tecnologica sottostante. L'implementazione di queste interfacce è affidata al package \texttt{infrastructure.persistence.jdbc}, il quale ha il compito di tradurre le azioni dettate dal dominio in istruzioni JDBC per il database MySQL. Tale package include inoltre diversi \textbf{Record} (evidenziati in rosso nella \cref{fig:PortOut}), utilizzati come strutture dati (DTO) per veicolare le informazioni estratte dal database affinché siano adatte per essere elaborate dai metodi del core applicativo.
+Nel  progetto, le \textbf{Port-Out} sono interfacce Java che definiscono i requisiti di persistenza e le interazioni esterne in modo astratto e universale. Questo approccio permette alla logica di business di invocare i metodi necessari senza dipendere dalla reale implementazione tecnologica sottostante. L'implementazione di queste interfacce è affidata al package \texttt{infrastructure.persistence.jdbc}, il quale ha il compito di tradurre le azioni dettate dal dominio in istruzioni JDBC per il database MySQL. Tale package include inoltre diversi \textbf{Record} (evidenziati in rosso nella \autoref{fig:PortOut}), utilizzati come strutture dati (DTO) per veicolare le informazioni estratte dal database affinché siano adatte per essere elaborate dai metodi del core applicativo.
 \begin{figure}[H]
+	\centering
 
-    \centering
-
-    % --- RIGA 1: ROOT E BEACH ---
+	% --- RIGA 1: ROOT E BEACH ---
+	\begin{minipage}[t]{0.48\textwidth}
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+			out/
+			|-- beach/
+			|-- booking/
+			|-- common/
+			|-- moderation/
+			|-- review/
+			|-- user/
+			|-- TransactionManager.java
+		\end{lstlisting}
+    \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-out/
-|-- beach/
-|-- booking/
-|-- common/
-|-- moderation/
-|-- review/
-|-- user/
-|-- TransactionManager.java
-\end{lstlisting}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-beach/
-|-- BeachCatalogQuery.java
-|-- BeachRepository.java
-|-- (*@\color{red}BeachReviewDto.java@*)
-|-- BeachReviewsQuery.java
-|-- (*@\color{red}BeachSummary.java@*)
-\end{lstlisting}
-    \end{minipage}
-
-    \vspace{0.8cm}
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		beach/
+		|-- BeachCatalogQuery.java
+		|-- BeachRepository.java
+		|-- (*@\color{red}BeachReviewDto.java@*)
+		|-- BeachReviewsQuery.java
+		|-- (*@\color{red}BeachSummary.java@*)
+		\end{lstlisting}
+    \end{minipage}\vspace{0.8cm}
 
     % --- RIGA 2: BOOKING E USER ---
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-booking/
-|-- AvailabilityQuery.java
-|-- (*@\color{red}BookedInventory.java@*)
-|-- (*@\color{red}BookedParkingSpaces.java@*)
-|-- BookingRepository.java
-\end{lstlisting}
-    \end{minipage}
-    \hfill
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		booking/
+		|-- AvailabilityQuery.java
+		|-- (*@\color{red}BookedInventory.java@*)
+		|-- (*@\color{red}BookedParkingSpaces.java@*)
+		|-- BookingRepository.java
+		\end{lstlisting}
+    \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-user/
-|-- AdminRepository.java
-|-- AuthenticationUseCase.java
-|-- CustomerRepository.java
-|-- (*@\color{red}LoginResult.java@*)
-|-- OwnerRepository.java
-|-- UserRepository.java
-\end{lstlisting}
-    \end{minipage}
-
-    \vspace{0.8cm}
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		user/
+		|-- AdminRepository.java
+		|-- AuthenticationUseCase.java
+		|-- CustomerRepository.java
+		|-- (*@\color{red}LoginResult.java@*)
+		|-- OwnerRepository.java
+		|-- UserRepository.java
+		\end{lstlisting}
+    \end{minipage}\vspace{0.8cm}
 
     % --- RIGA 3: MODERATION E ALTRI ---
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-moderation/
-|-- BanRepository.java
-|-- ReportRepository.java
-\end{lstlisting}
-    \end{minipage}
-    \hfill
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		moderation/
+		|-- BanRepository.java
+		|-- ReportRepository.java
+		\end{lstlisting}
+    \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-common/
-|-- AddressRepository.java
-
-review/
-|-- ReviewRepository.java
-\end{lstlisting}
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		common/
+		|-- AddressRepository.java
+		
+		review/
+		|-- ReviewRepository.java
+		\end{lstlisting}
     \end{minipage}
-
     \caption{Struttura delle Port-Out}
     \label{fig:PortOut}
 \end{figure}
@@ -516,79 +516,71 @@ L'implementazione concreta di queste interfacce è affidata al livello \textbf{S
 
     % --- RIGA 1: ROOT E BEACH ---
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-in/
-|-- beach/
-|-- booking/
-|-- common/
-|-- moderation/
-|-- review/
-|-- user/
-\end{lstlisting}
-    \end{minipage}
-    \hfill
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		in/
+		|-- beach/
+		|-- booking/
+		|-- common/
+		|-- moderation/
+		|-- review/
+		|-- user/
+		\end{lstlisting}
+    \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-beach/
-|-- BrowseBeachUseCase.java
-|-- CloseBeachUseCase.java
-|-- (*@\color{red}CreateBeachCommand.java@*)
-|-- CreateBeachUseCase.java
-|-- ManageBeachUseCase.java
-\end{lstlisting}
-    \end{minipage}
-
-    \vspace{0.8cm}
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		beach/
+		|-- BrowseBeachUseCase.java
+		|-- CloseBeachUseCase.java
+		|-- (*@\color{red}CreateBeachCommand.java@*)
+		|-- CreateBeachUseCase.java
+		|-- ManageBeachUseCase.java
+		\end{lstlisting}
+    \end{minipage}\vspace{0.8cm}
 
     % --- RIGA 2: BOOKING E USER ---
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-booking/
-|-- BookingUseCase.java
-|-- (*@\color{red}CreateBookingCommand.java@*)
-|-- CreateBookingUseCase.java
-|-- (*@\color{red}CreateManualBookingCommand.java@*)
-|-- CreateManualBookingUseCase.java
-\end{lstlisting}
-    \end{minipage}
-    \hfill
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		booking/
+		|-- BookingUseCase.java
+		|-- (*@\color{red}CreateBookingCommand.java@*)
+		|-- CreateBookingUseCase.java
+		|-- (*@\color{red}CreateManualBookingCommand.java@*)
+		|-- CreateManualBookingUseCase.java
+		\end{lstlisting}
+    \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-user/
-|-- (*@\color{red}CreateAdminRequest.java@*)
-|-- (*@\color{red}CreateCustomerRequest.java@*)
-|-- (*@\color{red}CreateOwnerRequest.java@*)
-|-- (*@\color{red}CreateUserRequest.java@*)
-|-- UserRegistrationUseCase.java
-\end{lstlisting}
-    \end{minipage}
-
-    \vspace{0.8cm}
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		user/
+		|-- (*@\color{red}CreateAdminRequest.java@*)
+		|-- (*@\color{red}CreateCustomerRequest.java@*)
+		|-- (*@\color{red}CreateOwnerRequest.java@*)
+		|-- (*@\color{red}CreateUserRequest.java@*)
+		|-- UserRegistrationUseCase.java
+		\end{lstlisting}
+    \end{minipage}\vspace{0.8cm}
 
     % --- RIGA 3: MODERATION E REVIEW ---
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-moderation/
-|-- BanUseCase.java
-|-- (*@\color{red}CreateBanCommand.java@*)
-|-- (*@\color{red}CreateReportCommand.java@*)
-|-- CreateReportUseCase.java
-|-- ManageReportUseCase.java
-\end{lstlisting}
-    \end{minipage}
-    \hfill
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		moderation/
+		|-- BanUseCase.java
+		|-- (*@\color{red}CreateBanCommand.java@*)
+		|-- (*@\color{red}CreateReportCommand.java@*)
+		|-- CreateReportUseCase.java
+		|-- ManageReportUseCase.java
+		\end{lstlisting}
+    \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-review/
-|-- (*@\color{red}CreateReviewCommand.java@*)
-|-- ReviewUseCase.java
-|-- ViewBeachReviewsUseCase.java
-
-common/
-|-- AddressUseCase.java
-\end{lstlisting}
+		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
+		review/
+		|-- (*@\color{red}CreateReviewCommand.java@*)
+		|-- ReviewUseCase.java
+		|-- ViewBeachReviewsUseCase.java
+		
+		common/
+		|-- AddressUseCase.java
+		\end{lstlisting}
     \end{minipage}
-
     \caption{Struttura delle Port-In}
     \label{fig:PortIn}
 \end{figure}
@@ -601,7 +593,7 @@ Per la gestione della persistenza dei dati è stato utilizzato il DBMS \textbf{M
 L'integrità del dato è assicurata a livello nativo attraverso una rigorosa definizione di vincoli (Foreign Key, Unique e Check) implementati nello script di creazione. Tale approccio permette di delegare al database la validazione delle informazioni critiche, mentre le verifiche legate alla \textbf{logica di business} sono gestite programmaticamente all'interno del codice Java dell'applicazione.
 
 \subsection{Modello ER}
-Il modello Entity-Relationship (\cref{fig:modelloER}) omette la relazione diretta tra \textit{Beaches} e \textit{Bookings} per evitare ridondanze concettuali, essendo il legame già mediato dalle entità \textit{Zones} e \textit{Spots}. In fase di implementazione del database fisico, tuttavia, tale relazione è stata introdotta per ottimizzare le performance delle query di ricerca, riducendo la complessità delle operazioni di join.
+Il modello Entity-Relationship (\autoref{fig:modelloER}) omette la relazione diretta tra \textit{Beaches} e \textit{Bookings} per evitare ridondanze concettuali, essendo il legame già mediato dalle entità \textit{Zones} e \textit{Spots}. In fase di implementazione del database fisico, tuttavia, tale relazione è stata introdotta per ottimizzare le performance delle query di ricerca, riducendo la complessità delle operazioni di join.
 
 \begin{figure}[H] 
     \centering
@@ -612,8 +604,10 @@ Il modello Entity-Relationship (\cref{fig:modelloER}) omette la relazione dirett
     \label{fig:modelloER}
 \end{figure}
 
+\newpage
+
 \subsection{Dizionario dei dati}
-Il dizionario (\cref{fig:diz_entita,fig:diz_relazioni}) presenta per \textit{Spots} e \textit{Bookings} attributi identificativi esterni derivanti dalle relazioni con altre entità. Per semplificare le interrogazioni e la realizzazione del database si è optato per l'utilizzo di una chiave primaria artificiale (\textit{id}), preservando la valenza identificativa di questi attributi tramite vincoli \texttt{UNIQUE} e \texttt{NOT NULL}, come dettagliato nella tabella dei vincoli (\cref{fig:tab_vincoli}).
+Il dizionario (\autoref{fig:diz_entita} e \autoref{fig:diz_relazioni}) presenta per \textit{Spots} e \textit{Bookings} attributi identificativi esterni derivanti dalle relazioni con altre entità. Per semplificare le interrogazioni e la realizzazione del database si è optato per l'utilizzo di una chiave primaria artificiale (\textit{id}), preservando la valenza identificativa di questi attributi tramite vincoli \texttt{UNIQUE} e \texttt{NOT NULL}, come dettagliato nella tabella dei vincoli (\autoref{fig:tab_vincoli}).
 
 \begin{figure}[H]
     \centering
@@ -629,25 +623,115 @@ Il dizionario (\cref{fig:diz_entita,fig:diz_relazioni}) presenta per \textit{Spo
     \label{fig:diz_relazioni}
 \end{figure}
 
+\newpage
+
 \subsection{Tabelle delle Regole}
 Di seguito vengono riportati i vincoli di integrità e le regole di derivazione che governano la logica della persistenza dei dati.
-In merito alla regola RD1 (\cref{fig:tab_derivazioni}), si è scelta la persistenza dell'attributo \textit{totalPrice} nel database al fine di ridurre il carico computazionale di consultazione.
+In merito alla regola RD1 (\autoref{fig:tab_derivazioni}), si è scelta la persistenza dell'attributo \textit{totalPrice} nel database al fine di ridurre il carico computazionale di consultazione.
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\textwidth]{DataBase/Tabelle/vincoli}
-    \caption{Tabella dei vincoli di integrità (RV)}
-    \label{fig:tab_vincoli}
+\begin{figure}[H]
+	\centering
+	
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width=0.85\textwidth]{DataBase/Tabelle/vincoli}
+		\caption{Tabella dei vincoli di integrità (RV)}
+	\end{subfigure}
+	
+	\vspace{0.5cm}
+	
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{DataBase/Tabelle/derivazioni}
+		\caption{Tabella delle regole di derivazione (RD)}
+		\label{fig:tab_derivazioni}
+	\end{subfigure}
+	
+	\caption{Tabelle delle Regole}
+	\label{fig:tabelle}
 \end{figure}
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\textwidth]{DataBase/Tabelle/derivazioni} 
-    \caption{Tabella delle regole di derivazione (RD)}
-    \label{fig:tab_derivazioni}
-\end{figure}
+\newpage
 
 \section{Mockup}
+
+In questa sezione vengono presentati i mockup dell'interfaccia grafica, realizzati con lo scopo di dimostrare visivamente come i requisiti e le rigide regole di business (definite nel Domain-Driven Design) si traducano nell'esperienza utente finale. 
+
+Per ottimizzare i tempi di prototipazione e ottenere un design moderno e responsivo, sono stati impiegati due strumenti di generazione UI basati sull'Intelligenza Artificiale:
+\begin{itemize}
+	\item \textbf{v0.dev (Vercel):} utilizzato per generare i primi 4 mockup, focalizzati sull'esperienza Mobile (B2C) dedicata ai \textit{Customer}.
+	\item \textbf{bolt.new (StackBlitz):} utilizzato per generare gli ultimi 4 mockup, focalizzati sulle Dashboard Desktop (B2B) destinate alla gestione avanzata da parte di \textit{Owner} e \textit{Admin}.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{mockups/1mockup-mainPage-desktop.jpg} 
+	\caption{\textbf{Esplora Spiagge - Desktop (UC-04):} Interfaccia desktop per la ricerca nel catalogo. La vista interroga in sola lettura (CQRS tramite la \textit{BeachCatalogQuery}) il database, mostrando esclusivamente le spiagge in stato \textit{ATTIVO} ed esponendo la valutazione media.}
+	\label{fig:mockup1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	
+	\begin{minipage}[b]{0.30\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{mockups/2mockup-mainPage-mobile.jpg} 
+	\end{minipage}\hfill
+	\begin{minipage}[b]{0.30\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{mockups/3mockup-createBooking-mobile.jpg}
+	\end{minipage}\hfill
+	\begin{minipage}[b]{0.30\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{mockups/4mockup-myBookings-mobile.png}
+	\end{minipage}
+	
+	\vspace{0.3cm}
+	
+	\begin{minipage}[t]{0.32\textwidth}
+		\caption{\textbf{Esplora Spiagge - Mobile (UC-04):} Versione responsiva (mobile) dell'interfaccia B2C per la consultazione del catalogo spiagge da parte di Customer e Guest.}
+		\label{fig:mockup2}
+	\end{minipage}\hfill
+	\begin{minipage}[t]{0.32\textwidth}
+		\caption{\textbf{Flusso di Prenotazione (UC-05):} Interfaccia mobile per la creazione di una prenotazione. Evidenzia l'applicazione delle regole di dominio: controlli stringenti sulla capienza massima di parcheggi ed extra, e il calcolo in tempo reale del prezzo totale (tramite \textit{PriceCalculatorDomainService}).}
+		\label{fig:mockup3}
+	\end{minipage}\hfill
+	\begin{minipage}[t]{0.32\textwidth}
+		\caption{\textbf{Le Mie Prenotazioni e Recensioni (UC-06 \& UC-07):} Dashboard mobile del Customer. La UI riflette visivamente gli stati della prenotazione (\textit{PENDING} e \textit{CONFIRMED}). Viene inoltre mostrato il pulsante "Lascia una recensione", sbloccato dal backend esclusivamente per i soggiorni passati.}
+		\label{fig:mockup4}
+	\end{minipage}
+	
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{mockups/5mockup-bookingMgmt-desktop.jpg}
+	\caption{\textbf{Dashboard Prenotazioni Owner (UC-05 1a \& UC-06):} Interfaccia desktop B2B. Mostra la lista delle richieste in attesa con i pulsanti per l'approvazione/rifiuto e il bottone per avviare la "Prenotazione Telefonica Manuale" (che supporta dati chiamante slegati dall'ID cliente).}
+	\label{fig:mockup5}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{mockups/6mockup-seasonsMgmt-desktop.jpg}
+	\caption{\textbf{Gestione Stagioni e Prezzi (UC-14):} Il mockup dimostra l'imposizione delle regole di business del dominio: un avviso di errore per date sovrapposte (\textit{Overlap Check}) e campi prezzo resi graficamente disabilitati (Sola Lettura) per garantire l'immutabilità finanziaria.}
+	\label{fig:mockup6}
+\end{figure}
+
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width=0.9\textwidth]{mockups/mockup7.png}
+%	\caption{\textbf{Gestione Zone e Layout (UC-15):} Strumento di mappatura della spiaggia. La figura evidenzia il blocco logico (simboleggiato dall'icona del lucchetto) applicato alle Zone già associate a una Stagione, impedendone la modifica strutturale a tutela dell'integrità dei dati.}
+%	\label{fig:mockup7}
+%\end{figure}
+
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width=0.9\textwidth]{mockups/mockup8.png}
+%	\caption{\textbf{Dashboard di Moderazione Admin (UC-01 \& Reports):} Interfaccia desktop riservata agli Admin. Mostra la tabella delle segnalazioni evidenziando il comportamento polimorfico del Ban implementato nel backend (scelta tra \textit{App Ban} globale e \textit{Beach Ban} selettivo).}
+%	\label{fig:mockup8}
+%\end{figure}
+
+\newpage
 
 \section{Testing}
 

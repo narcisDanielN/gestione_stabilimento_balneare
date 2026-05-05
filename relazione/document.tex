@@ -218,7 +218,7 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
 Per lo sviluppo di SunSpot sono stati adottati diversi pattern volti a garantire un'architettura robusta, testabile e facilmente manutenibile, separando nettamente le responsabilità tra logica di business e dettagli implementativi.
 
 \subsubsection{Architettura Esagonale (Ports \& Adapters)}
-Il progetto SunSpot adotta i principi dell'Architettura Esagonale per garantire una separazione  delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{Core}), composto dai package \texttt{domain} e \texttt{application}, e un perimetro esterno, composto dagli \textbf{Adapters} nel package \texttt{infrastructure}.
+Il progetto SunSpot adotta i principi dell'Architettura Esagonale per garantire una separazione  delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{Core}), composto dai package \texttt{domain} e \texttt{application}, e un perimetro esterno, composto dagli \textbf{Adapters} nel package \texttt{infrastructure.persistence.jdbc}.
 
 Lo strato di \textbf{Application} funge da ponte tra il mondo esterno e il dominio ed è suddiviso in due componenti fondamentali:
 \begin{itemize}
@@ -275,7 +275,7 @@ public class BookingService implements BookingUseCase {
 \subsubsection{DDD-lite (Domain-Driven Design)}
 A integrazione dell'architettura esagonale, è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'esagonale definisce i confini, il \textbf{DDD} stabilisce che il nucleo del progetto deve riflettere il linguaggio e le regole della realtà modellata. 
 
-Il cuore di questo approccio è il \textbf{Rich Domain Model}; a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio le entità hanno il compito di assicurarsi l'integrità dei dati sia in fase di modifica che di instanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato.
+Il cuore di questo approccio è il \textbf{Rich Domain Model}; a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio le entità hanno il compito di assicurarsi l'integrità dei dati sia in fase di modifica che di instanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato  (es. \autoref{lst:Entities}).
 
 In questa architettura abbiamo distinto:
 \begin{itemize}
@@ -335,7 +335,7 @@ public record BeachInventory(int countExtraSdraio, int countCamerini) {
 \subsubsection{Builder Pattern}
 Il pattern Builder è stato utilizzato per gestire l'instanziamento di classi caratterizzate da un elevato numero di parametri e attributi opzionali, evitando costruttori eccessivamente complessi e verbosi. Tramite una classe interna statica la costruzione dell'oggetto avviene in modo guidato e leggibile (es. \autoref{lst:Builder}).
 
-Il pattern è stato applicato a classi come \texttt{Address}, \texttt{Spot}, \texttt{Zone} e ai record associati a \texttt{Booking} e \texttt{Beach}. Nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi in diversi record tematici, ciascuno dei quali viene istanziato tramite il proprio builder. Questo
+Il pattern è stato applicato a classi come \texttt{Address}, \texttt{Spot}, \texttt{Zone} e ai \textit{Value-Objects} associati a \texttt{Booking} e \texttt{Beach}. In particolare nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi in diversi \textit{Value-Objects}, ciascuno dei quali viene istanziato tramite il proprio builder. Questo
  permette di gestire con estrema facilità la configurazione di parametri non obbligatori, mantenendo il codice pulito e uniforme in tutto il progetto.
  
  \begin{lstlisting}[caption={Implementazione del pattern Builder su un Value Object}, label={lst:Builder}]
@@ -397,10 +397,10 @@ La struttura della directory del progetto è stata organizzata in base alla sepa
 
 La directory dei test rispecchia la struttura principale per mantenere gli Unit Test organizzati (con package paralleli come \texttt{application} e \texttt{domain} e le relative Test Suite). L'adozione di queste pratiche garantisce un progetto chiaro, strutturato e facilmente manutenibile, evitando al contempo problemi legati alla visibilità dei package.
 
-Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}) , i casi d'uso (\texttt{application}) e la gestione dei dati e interazioni con il database (\texttt{infrastructure}). Tale approccio strutturato assicura che ogni componente del sistema abbia una responsabilità ben definita, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
+Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}) , i casi d'uso (\texttt{application}) e la gestione dei dati e interazioni con il database (\texttt{infrastructure.persistence.jdbc}). Tale approccio strutturato assicura che ogni componente del sistema abbia una responsabilità ben definita, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
 
 \subsection{Domain}
-Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le regole di business e la modellazione dello stato. In ottemperanza ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
+Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le regole di business e la modellazione dello stato. In conformità ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
 La struttura gerarchica e relazionale delle entità è sintetizzata nel diagramma UML riportato in \cref{fig:domain_UML}.
 
 Dal punto di vista architetturale, la relazione tra \textbf{Entities} e \textbf{Value Objects} si concretizza tramite il principio della \textit{composizione}: le Entità incapsulano i Value Objects come propri attributi, delegando a questi ultimi la gestione di raggruppamenti logici e immutabili di dati (ad esempio, le informazioni generali o l'inventario di una spiaggia).
@@ -505,7 +505,7 @@ Le \textbf{Port-In} (o \textit{Driving Ports}) rappresentano i punti di ingresso
 
 In questa architettura, le Port-In sono strutturate attraverso due componenti principali:
 \begin{itemize}
-    \item \textbf{UseCase (Interfacce)}: definiscono i contratti delle operazioni di business. Esse dettano quali informazioni sono necessarie per eseguire un'azione e garantiscono che il mondo esterno interagisca con il core solo attraverso canali controllati,
+    \item \textbf{UseCase (Interfacce Java)}: definiscono i contratti delle operazioni di business. Esse dettano quali informazioni sono necessarie per eseguire un'azione e garantiscono che il mondo esterno interagisca con il core solo attraverso canali controllati,
     \item \textbf{Command e Request (Input Models)}: rappresentati spesso come \textit{Java Record} (evidenziati in rosso nella \autoref{fig:PortIn}), questi oggetti fungono da contenitori di dati immutabili. Il loro compito è veicolare i parametri necessari per l'esecuzione del caso d'uso, permettendo una validazione sintattica preliminare prima che la richiesta raggiunga la logica di business.
 \end{itemize}
 

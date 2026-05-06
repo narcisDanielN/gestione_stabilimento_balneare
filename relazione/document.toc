@@ -6,7 +6,7 @@
 \contentsline {subsection}{\numberline {2.2}Database e Persistenza}{1}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Librerie e Containerizzazione}{1}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}Testing e Analisi}{1}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Intelligenza artificiale}{1}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.5}Intelligenza artificiale}{2}{subsection.2.5}%
 \contentsline {section}{\numberline {3}Use Cases}{2}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Utenti del sistema}{2}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}Descrizione Use Cases}{3}{subsection.3.2}%
@@ -23,13 +23,13 @@
 \contentsline {subsection}{\numberline {4.2}Struttura del codice}{13}{subsection.4.2}%
 \contentsline {subsection}{\numberline {4.3}Domain}{14}{subsection.4.3}%
 \contentsline {subsection}{\numberline {4.4}Application}{15}{subsection.4.4}%
-\contentsline {subsubsection}{\numberline {4.4.1}Port-out}{15}{subsubsection.4.4.1}%
-\contentsline {subsubsection}{\numberline {4.4.2}Port-in}{16}{subsubsection.4.4.2}%
-\contentsline {section}{\numberline {5}Database}{18}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Modello ER}{18}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Dizionario dei dati}{19}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}Tabelle delle Regole}{21}{subsection.5.3}%
-\contentsline {section}{\numberline {6}Mockup}{22}{section.6}%
+\contentsline {subsubsection}{\numberline {4.4.1}Port-Out}{15}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Port-In}{16}{subsubsection.4.4.2}%
+\contentsline {section}{\numberline {5}Database}{17}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Modello ER}{17}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Dizionario dei dati}{18}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Tabelle delle Regole}{20}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Mockup}{21}{section.6}%
 \contentsline {section}{\numberline {7}Unit Testing}{25}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Strategia e Obiettivi del Testing}{25}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Copertura dei Test: Classi e Metodi}{25}{subsection.7.2}%

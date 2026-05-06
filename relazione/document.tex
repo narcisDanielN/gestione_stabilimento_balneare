@@ -23,7 +23,8 @@
 \usepackage{bm}						
 \usepackage{caption}				
 \usepackage{listings}
-
+\usepackage{multicol}
+\usepackage{dirtree}
 \usepackage[normalem]{ulem}
 \usepackage{hyperref}
 \hypersetup{
@@ -34,7 +35,7 @@
 \let\oldhref\href
 \renewcommand{\href}[2]{\oldhref{#1}{\uline{#2}}}
 
-% Definizione dello stile per Java
+% definizione dello stile per Java
 \lstset{
     language=Java,
     basicstyle=\ttfamily\small,
@@ -46,12 +47,35 @@
     frame=single,
     backgroundcolor={},
     showstringspaces=false,
-    escapeinside={(*@}{@*)}      
+    escapeinside={(*@}{@*)},
+    extendedchars=true,
+    literate=
+    {à}{{\`{a}}}1
+    {è}{{\`{e}}}1
+    {é}{{\'{e}}}1
+    {ì}{{\`{i}}}1
+    {ò}{{\`{o}}}1
+    {ù}{{\`{u}}}1     
 }
 
+% usato negli autoref per avere scritte come "Figura 1"
 \usepackage[italian]{cleveref}
 
+% uso di fancyhf per i vari header e footer delle pagine
 \pagestyle{fancy}
+\fancyhf{} 
+\renewcommand{\sectionmark}[1]{%
+	\markboth{\thesection\ -\ #1}{}%
+}
+\fancyhead[L]{\leftmark} 
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{%
+	\ifnum\value{page}=0
+	\else
+	\thepage
+	\fi
+}
+\renewcommand{\footrulewidth}{0pt}
 
 \graphicspath{{img/}}
 
@@ -59,13 +83,13 @@
 	justification=centering, 
 	font=small
 }
-
 \title{Ingegneria del Software \\ \Large SunSpot: Gestionale per la prenotazione digitale di stabilimenti balneari} 
 \author{Soldani Leonardo - 7139732 \\ Neamtu Narcis Daniel - 7133414}
 \date{Marzo 2026} 
 
 \begin{document}
 
+% pagina iniziale - titolo progetto + autori
 \makeatletter
 \begin{titlepage}
 	\centering
@@ -79,22 +103,25 @@
 \end{titlepage}
 \makeatother
 
+% ================================================================================================ %
 \newpage
 
+% indice
+\setcounter{page}{0}
 \renewcommand{\contentsname}{Indice}
 \tableofcontents
+
+% ================================================================================================ %
 \newpage
 
-\pagestyle{plain}
-\setcounter{page}{1}
-
 \section{Introduzione}
-Il progetto SunSpot nasce dall'esigenza di digitalizzare e modernizzare il settore degli stabilimenti balneari, un ambito che ancora oggi mostra una certa resistenza all'adozione di piattaforme web integrate.
-\newline L'obiettivo principale è fornire un'infrastruttura capace di permettere all'utente di prenotare in modo rapido e intuitivo un ombrellone presso uno dei lidi aderenti al servizio, trasformando la pianificazione di una giornata al mare in un'operazione a portata di click, offrendo al contempo ai gestori uno strumento completo per il controllo della propria attività.
+Il progetto SunSpot nasce dall'esigenza di \textbf{digitalizzare e modernizzare} il settore degli stabilimenti balneari, un ambito che ancora oggi mostra una certa resistenza all'adozione di piattaforme web integrate.
+\newline L'obiettivo principale è fornire un'infrastruttura capace di permettere all'utente di \textbf{prenotare in modo rapido e intuitivo} un ombrellone presso uno dei lidi aderenti al servizio, trasformando la pianificazione di una giornata al mare in un'operazione a portata di click, offrendo al contempo ai gestori uno strumento completo per il controllo della propria attività.
 
-Per garantire un ecosistema sicuro e affidabile, SunSpot integra un sistema di regolazione basato su recensioni verificate e un meccanismo di segnalazione (report) tra utenti e gestori, volto a preservare l'integrità del servizio e a migliorare costantemente l'esperienza d'uso per tutti gli attori coinvolti.
+Per garantire un \textbf{ecosistema sicuro e affidabile}, SunSpot integra un sistema di regolazione basato su recensioni verificate e un meccanismo di segnalazione (report) tra utenti e gestori, volto a preservare l'integrità del servizio e a \textbf{migliorare costantemente l'esperienza d'uso} per tutti gli attori coinvolti.
 
 \section{Ambiente e tecnologie utilizzate}
+\markboth{1 - Introduzione}{1 - Introduzione}
 L'applicazione è stata sviluppata utilizzando le seguenti tecnologie:
 
 \subsection{Linguaggio e Tool di Build}
@@ -122,6 +149,9 @@ L'applicazione è stata sviluppata utilizzando le seguenti tecnologie:
     \item \textbf{JUnit Platform Suite} - Strumento per l'organizzazione e l'esecuzione dei test.
 \end{itemize}
 
+% ================================================================================================ %
+\newpage
+
 \subsection{Intelligenza artificiale}
 A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguistici \textit{Gemini 3} e \textit{Gemini 3.1}. L'impiego di tali strumenti si è concentrato sui seguenti ambiti:
 \begin{itemize}
@@ -134,20 +164,22 @@ A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguisti
 
 \subsection{Utenti del sistema}
 
-Il programma coinvolge tre attori principali: Customer, Owner e Admin. Ciascuno di essi ha la possibilità di effettuare azioni specifiche per il proprio ruolo:
+Il programma coinvolge tre attori principali: \textbf{Customer}, \textbf{Owner} e \textbf{Admin}. Ciascuno di essi ha la possibilità di effettuare azioni specifiche per il proprio ruolo:
 
 \begin{itemize}
-	\item \textbf{Customer}: utente finale dell'applicazione. Ha la possibilità di effettuare prenotazioni scegliendo l'ombrellone desiderato; può richiedere inoltre servizi extra come lettini, sdraio e sedie, o la prenotazione di un camerino. Questa tipologia di utente può rilasciare un'unica recensione per ogni spiaggia presso cui ha prenotato e può inviare una segnalazione (report) agli admin qualora riscontri violazioni delle linee guida da parte di uno stabilimento.
-	\item \textbf{Owner}: gestore dello stabilimento balneare. Ha il compito di configurare il proprio lido partendo dalla segnalazione dei servizi comuni, passando per l'organizzazione geografica della spiaggia in zone con diverse fasce di prezzo, fino alla possibilità di definire stagionalità con diverse tariffe. Può inoltre effettuare un report nei confronti dei customer che hanno tenuto comportamenti scorretti, come ad esempio il mancato rispetto di una prenotazione.
-	\item \textbf{Admin}: è colui che svolge il ruolo di gestore dell'ambiente commerciale offerto dall'applicazione, accogliendo i report e valutandoli tramite l'accesso alla cronologia dei report inviati e ricevuti dagli utenti, con la possibilità di accettarli o rifiutarli. Al fine di gestire l'ambiente, l'admin utilizza lo strumento del ban, che può colpire sia i customer che gli owner/spiagge. Il ban può essere di due tipi: da una singola spiaggia (applicabile solo ai customer) oppure dall'intera applicazione (applicabile a entrambi).
+	\item \textbf{Customer}: utente finale dell'applicazione. Ha la possibilità di \textbf{effettuare prenotazioni} scegliendo l'ombrellone desiderato; può \textbf{richiedere} inoltre \textbf{servizi extra} come lettini, sdraio e sedie, o la prenotazione di un camerino. Questa tipologia di utente può \textbf{rilasciare} un'unica \textbf{recensione} per ogni spiaggia presso cui ha prenotato e può \textbf{inviare una segnalazione} (report) agli admin qualora riscontri violazioni delle linee guida da parte di uno stabilimento.
+	\item \textbf{Owner}: gestore dello stabilimento balneare. Ha il compito di \textbf{configurare} il proprio lido partendo dalla segnalazione dei servizi comuni, passando per \textbf{l'organizzazione} geografica della spiaggia \textbf{in zone} con diverse fasce di prezzo, fino alla possibilità di \textbf{definire stagionalità} con diverse tariffe. Può inoltre \textbf{effettuare report} nei confronti dei customer che hanno tenuto comportamenti scorretti, come ad esempio il mancato rispetto di una prenotazione.
+	\item \textbf{Admin}: svolge il ruolo di gestore dell'ambiente commerciale offerto dall'applicazione, \textbf{accogliendo} i report e \textbf{valutandoli} tramite l'accesso alla cronologia dei report inviati e ricevuti dagli utenti, con la possibilità di accettarli o rifiutarli. Al fine di gestire l'ambiente, l'admin utilizza lo strumento del \textbf{ban}, che può colpire sia i customer che gli owner/spiagge. Il ban può essere di due tipi: da una \textbf{singola spiaggia} (applicabile solo ai customer) oppure \textbf{dall'intera applicazione} (applicabile a entrambi).
 \end{itemize}
 
+% ================================================================================================ %
 \newpage
 
 \subsection{Descrizione Use Cases}
 Il programma si pone l'obiettivo di implementare un'applicazione a scopi commerciali; di conseguenza l'azione di eliminare prenotazioni, spiagge, utenti ed altre informazioni di natura fiscale risulterebbe un comportamento superficiale da parte dei programmatori. Per questo motivo, il sistema non prevede l'eliminazione fisica di record sensibili, ma utilizza un meccanismo di disattivazione logica.
 
-Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases del progetto, nelle sezioni successive verranno analizzati nel dettaglio i flussi più rilevanti.
+Di seguito (\autoref{fig:UseCases}) è riportato il \textbf{diagramma degli Use Cases} del progetto, nelle sezioni successive verranno analizzati nel dettaglio i flussi più rilevanti.
+Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{run:img/usecase_tables.pdf}{il seguente PDF}.
 \begin{figure}[H] 
     \centering
     \makebox[\textwidth][c]{
@@ -157,8 +189,8 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
     \label{fig:UseCases}
 \end{figure}
 
+% ================================================================================================ %
 \subsubsection{Manage User Account}
-
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
@@ -168,8 +200,8 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
     \label{fig:UC02}
 \end{figure}
 
+% ================================================================================================ %
 \subsubsection{Create Booking}
-
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
@@ -179,8 +211,8 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
     \label{fig:UC05}
 \end{figure}
 
+% ================================================================================================ %
 \subsubsection{Manage Reviews}
-
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
@@ -190,8 +222,8 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
     \label{fig:UC07}
 \end{figure}
 
+% ================================================================================================ %
 \subsubsection{Create Beach}
-
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
@@ -201,8 +233,8 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
     \label{fig:UC10}
 \end{figure}
 
+% ================================================================================================ %
 \subsubsection{Manage Beach}
-
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
@@ -212,6 +244,7 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
     \label{fig:UC11}
 \end{figure}
 
+% ================================================================================================ %
 \newpage
 
 \section{Progettazione}
@@ -223,27 +256,27 @@ Di seguito (\autoref{fig:UseCases}) è riportato il diagramma degli Use Cases de
 Per lo sviluppo di SunSpot sono stati adottati diversi pattern volti a garantire un'architettura robusta, testabile e facilmente manutenibile, separando nettamente le responsabilità tra logica di business e dettagli implementativi.
 
 \subsubsection{Architettura Esagonale (Ports \& Adapters)}
-Il progetto SunSpot adotta i principi dell'Architettura Esagonale per garantire una separazione  delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{Core}), composto dai package \texttt{domain} e \texttt{application}, e un perimetro esterno, composto dagli \textbf{Adapters} nel package \texttt{infrastructure.persistence.jdbc}.
+Il progetto SunSpot adotta i \textbf{principi dell'Architettura Esagonale} per garantire una separazione delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{core}), composto dai package \textbf{\texttt{domain}} e \textbf{\texttt{application}}, e un perimetro esterno, composto dagli \textbf{adapters} nel package \textbf{\texttt{infrastructure.persistence.jdbc}}.
 
-Lo strato di \textbf{Application} funge da ponte tra il mondo esterno e il dominio ed è suddiviso in due componenti fondamentali:
+Lo strato di \textbf{\texttt{application}} funge da ponte tra il mondo esterno e il dominio ed è suddiviso in due componenti fondamentali:
 \begin{itemize}
-    \item \textbf{Ports (Interfacce)}: rappresentano i contratti di comunicazione dell'esagono. Si distinguono in:
+    \item \textbf{Ports (interfacce)}: rappresentano i contratti di comunicazione dell'esagono. Si distinguono in:
     \begin{itemize}
-        \item \textbf{Port-In (Driving Ports)}: definiscono i casi d'uso e le azioni che gli attori esterni possono richiedere al sistema (es. \autoref{lst:UseCase}).
-        \item \textbf{Port-Out (Driven Ports)}: definiscono i requisiti infrastrutturali necessari al (\textbf{Core}) per funzionare (es. \autoref{lst:Repository}).
+        \item \textbf{Port-In (driving ports)}: definiscono i casi d'uso e le azioni che gli attori esterni possono richiedere al sistema (es. \autoref{lst:UseCase}).
+        \item \textbf{Port-Out (driven ports)}: definiscono i requisiti infrastrutturali necessari al \textbf{core} per funzionare (es. \autoref{lst:Repository}).
     \end{itemize}
     
-    \item \textbf{Services (Orchestratori)}: rappresentano le implementazioni concrete delle Port-In. Il loro ruolo è quello di \textbf{orchestratori dei casi d'uso}: un Service riceve un comando, recupera i dati necessari tramite le Port-Out, delega la logica decisionale e di validazione alle entità del \texttt{domain} e infine persiste i cambiamenti tramite le Port-Out. Il Service non contiene logica di business, ma si occupa esclusivamente di coordinare il flusso operativo e gestire l'integrità delle transazioni.
+    \item \textbf{Services (orchestratori)}: rappresentano le implementazioni concrete delle port-in. Il loro ruolo è quello di \textbf{orchestratori dei casi d'uso}: un service riceve un comando, recupera i dati necessari tramite le port-in, delega la logica decisionale e di validazione alle entità del \texttt{domain} e infine persiste i cambiamenti tramite le port-out. I services non contengono logica di business, ma si occupano esclusivamente di coordinare il flusso operativo e gestire l'integrità delle transazioni (es. \autoref{lst:Service}).
 \end{itemize}
 
-Grazie a questa struttura, il sistema gode di una notevole resilienza; l'utilizzo delle interfacce assicura che il \textbf{disaccoppiamento} sia totale. Se in futuro fosse necessario migrare verso un diverso sistema di persistenza o un servizio cloud, sarebbe sufficiente sviluppare un nuovo Adapter senza dover modificare il codice nel Core applicativo.
+Grazie a questa struttura, il sistema gode di una notevole resilienza; l'utilizzo delle interfacce assicura che il \textbf{disaccoppiamento} sia \textbf{totale}. Se in futuro fosse necessario migrare verso un diverso sistema di persistenza o un servizio cloud, sarebbe sufficiente \textbf{sviluppare un nuovo adapter} senza dover modificare il codice nel core applicativo.
 
 \begin{lstlisting}[caption={Esempio Port-In (Contratto dei casi d'uso)}, label={lst:UseCase}]
 public interface BookingUseCase {
     void confirmBooking(Integer id);
     void cancelBooking(Integer id);
     
-    // ... altri metodi omessi ...
+    //... altri metodi omessi ...
     List<Booking> getCustomerBookings(Integer customerId);
 }
 \end{lstlisting}
@@ -258,47 +291,50 @@ public interface BookingRepository {
 }
 \end{lstlisting}
 
+% ================================================================================================ %
 \begin{lstlisting}[caption={Esempio Service (Orchestrazione e Transazionalità)}, label={lst:Service}]
 public class BookingService implements BookingUseCase {
-    // ... attributi e costruttore (Dependency Injection) ...
+    //... attributi e costruttore (dependency injection) ...
     
     @Override
     public void confirmBooking(Integer id) {
         transactionManager.executeInTransaction(context -> {
             Booking booking = getBookingOrThrow(id, context);
 
-            // Delegazione della logica di validazione al Dominio
+            //delegazione della logica di validazione al dominio
             booking.confirmBooking();
 
-            // Persistenza dello stato modificato
+            //persistenza dello stato modificato
             bookingRepository.update(booking, context);
         });
     }
- }   
+}   
 \end{lstlisting}
 
 \subsubsection{DDD-lite (Domain-Driven Design)}
 A integrazione dell'architettura esagonale, è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'esagonale definisce i confini, il \textbf{DDD} stabilisce che il nucleo del progetto deve riflettere il linguaggio e le regole della realtà modellata. 
 
-Il cuore di questo approccio è il \textbf{Rich Domain Model}; a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio le entità hanno il compito di assicurarsi l'integrità dei dati sia in fase di modifica che di instanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato  (es. \autoref{lst:Entities}).
+Il cuore di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio \textbf{le entità} hanno il compito di \textbf{assicurarsi l'integrità dei dati} sia in fase di modifica che di instanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato (es. \autoref{lst:Entities}).
 
 In questa architettura abbiamo distinto:
 \begin{itemize}
-    \item \textbf{Entities}: oggetti con un'identità univoca che persiste nel tempo (es. \autoref{lst:Entities}).
+    \item \textbf{Entities}: oggetti con un'identità univoca che persiste nel tempo (es. \autoref{lst:Entities});
     \item \textbf{Value Objects}: oggetti definiti dai propri attributi e immutabili, implementati tramite i \textbf{Java Records} (es. \autoref{lst:ValueObjects}).
 \end{itemize}
 
+% ================================================================================================ %
 \newpage
+
  \begin{lstlisting}[caption={Esempio Entity (Integrità dello stato e logica di business)}, label={lst:Entities}]
 public class Beach {
-    private final Integer id; // Identita univoca
-    private BeachInventory beachInventory; // Value Object composito
+    private final Integer id; //identità univoca
+    private BeachInventory beachInventory; //value object composito
     private boolean active;
     private boolean closed;
 
-    // ... costruttore omesso ...
+    //... costruttore omesso ...
 
-    // Metodo di dominio con validazione interna
+    //metodo di dominio con validazione interna
     public void setActive(boolean active) {
         if (active) {
             validateActivationRequirements();
@@ -307,8 +343,9 @@ public class Beach {
     }
 
     private void validateActivationRequirements() {
-        if (beachInventory == null) throw new IllegalStateException("Missing inventory");
-        // ... altri controlli di business ...
+        if (beachInventory == null)
+        	throw new IllegalStateException("Missing inventory");
+        //... altri controlli di business ...
     }
 }
 \end{lstlisting}
@@ -316,105 +353,107 @@ public class Beach {
 Un aspetto centrale nella progettazione è la gestione del ciclo di vita dei \textbf{Value Objects}, improntata alla massima protezione dello stato tramite due principi cardine:
 
 \begin{itemize}
-    \item \textbf{Ricostruzione del Modello}: Le entità non vengono semplicemente "lette" dal database, ma \textit{ricostituite}. Lo strato di persistenza fornisce i dati affinché il Core possa istanziare nuovamente l'entità, garantendo che i vincoli vengano verificati nel momento stesso della creazione in memoria.
-    \item \textbf{Metodi Wither e Immutabilità}: Invece di alterare lo stato di un'istanza esistente tramite \textit{setter}, le modifiche generano una \textbf{nuova istanza} dell'oggetto (\autoref{lst:ValueObjects}). Questo garantisce l'immutabilità durante il ciclo di vita in memoria, facilitando il debugging e assicurando la consistenza tra gli strati applicativi.
+    \item \textbf{Ricostruzione del Modello}: le entità non vengono semplicemente "lette" dal database, ma \textit{ricostituite}. Lo strato di persistenza fornisce i dati affinché il Core possa istanziare nuovamente l'entità, garantendo che i vincoli vengano verificati nel momento stesso della creazione in memoria.
+    \item \textbf{Metodi Wither e Immutabilità}: invece di alterare lo stato di un'istanza esistente tramite \textit{setter}, le modifiche generano una \textbf{nuova istanza} dell'oggetto (\autoref{lst:ValueObjects}). Questo garantisce l'\textbf{immutabilità} durante il ciclo di vita in memoria, facilitando il debugging e assicurando la consistenza tra gli strati applicativi.
 \end{itemize}
 
 \begin{lstlisting}[caption={Value Object: Integrità alla creazione e pattern Wither}, label={lst:ValueObjects}]
 public record BeachInventory(int countExtraSdraio, int countCamerini) {
-    
-    // Costruttore compatto per validare le regole di business
+    //costruttore compatto per validare le regole di business
     public BeachInventory {
         if (countExtraSdraio < 0 || countCamerini < 0) {
             throw new IllegalArgumentException("ERROR: counts cannot be negative");
         }
     }
 
-    // Metodo Wither: crea una nuova istanza immutabile con un dato aggiornato
+    //metodo Wither: crea una nuova istanza immutabile con un dato aggiornato
     public BeachInventory withCountCamerini(int countCamerini) {
         return new BeachInventory(this.countExtraSdraio, countCamerini);
     }
 }
 \end{lstlisting}
 
-\subsubsection{Builder Pattern}
-Il pattern Builder è stato utilizzato per gestire l'instanziamento di classi caratterizzate da un elevato numero di parametri e attributi opzionali, evitando costruttori eccessivamente complessi e verbosi. Tramite una classe interna statica la costruzione dell'oggetto avviene in modo guidato e leggibile (es. \autoref{lst:Builder}).
+% ================================================================================================ %
 
-Il pattern è stato applicato a classi come \texttt{Address}, \texttt{Spot}, \texttt{Zone} e ai \textit{Value-Objects} associati a \texttt{Booking} e \texttt{Beach}. In particolare nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi in diversi \textit{Value-Objects}, ciascuno dei quali viene istanziato tramite il proprio builder. Questo
- permette di gestire con estrema facilità la configurazione di parametri non obbligatori, mantenendo il codice pulito e uniforme in tutto il progetto.
+\subsubsection{Builder Pattern}
+Il pattern \textbf{Builder} è stato utilizzato per gestire l'instanziamento di classi caratterizzate da un elevato numero di parametri e attributi opzionali, evitando costruttori eccessivamente complessi e verbosi. Tramite una classe interna statica la \textbf{costruzione dell'oggetto} avviene in modo \textbf{guidato e leggibile} (es. \autoref{lst:Builder}).
+
+Il pattern è stato applicato a classi come \textbf{\texttt{Address}}, \textbf{\texttt{Spot}}, \textbf{\texttt{Zone}} e ai \textit{value objects} associati a \textbf{\texttt{Booking}} e \textbf{\texttt{Beach}}. In particolare, nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi in diversi \textit{value objects}, ciascuno dei quali viene istanziato tramite il proprio builder. Questo permette di gestire con estrema facilità la configurazione di parametri non obbligatori, mantenendo il codice pulito e uniforme in tutto il progetto.
  
- \begin{lstlisting}[caption={Implementazione del pattern Builder su un Value Object}, label={lst:Builder}]
+\begin{lstlisting}[caption={Implementazione del pattern Builder su un Value Object}, label={lst:Builder}]
 public static class Builder {
     private int countExtraSdraio = 0;
     private int countCamerini = 0;
 
     public Builder countExtraSdraio(int val) {
         this.countExtraSdraio = val;
-        return this; // Permette il method chaining
+        return this; //permette il method chaining
     }
 
     public BeachInventory build() {
-        // La validazione avverra automaticamente nel costruttore del Record
+        //la validazione avverrà automaticamente nel costruttore del record
         return new BeachInventory(countExtraSdraio, countCamerini);
     }
 }
 \end{lstlisting}
 
-
+% ================================================================================================ %
 \newpage
+
 \subsection{Struttura del codice}
 
 La struttura della directory del progetto è stata organizzata in base alla separazione dei package di Java e seguendo i principi dell'architettura software a livelli, descritta precedentemente.
 
-\begin{verbatim}
-|-- .idea
-|-- .mvn
-|-- db-init
-|-- src
-|   |-- main
-|   |   |-- java
-|   |   |   |-- com.example.s_balneare
-|   |   |       |-- application
-|   |   |       |   |-- port
-|   |   |       |   |    |--in
-|   |   |       |   |    |-out
-|   |   |       |   |-- service
-|   |   |       |-- domain
-|   |   |       |-- infrastructure.persistence.jdbc
-|   |   |       |-- Main.java
-|   |   |       |-- module-info.java
-|   |   |-- resources
-|   |-- test
-|       |-- java
-|           |-- com.example.s_balneare
-|               |-- application
-|               |     |--service
-|               |-- domain
-|               |-- AllTestsSuite.java
-|               |-- ApplicationTestSuite.java
-|               |-- DomainTestSuite.java
-|-- target
-|-- .gitignore
-|-- docker-compose.yml
-\end{verbatim}
+\begin{figure}[H]
+	\dirtree{%
+		.1 s\_balneare.
+		.2 .idea.
+		.2 .mvn.
+		.2 db-init.
+		.2 src.
+		.3 main.
+		.4 java.
+		.5 com.example.s\_balneare.
+		.6 application.
+		.7 port.
+		.8 in.
+		.8 out.
+		.7 service.
+		.6 domain.
+		.6 infrastructure.persistence.jdbc.
+		.6 Main.java.
+		.6 module-info.java.
+		.4 resources.
+		.3 test.
+		.4 java.
+		.5 com.example.s\_balneare.
+		.6 application.
+		.7 service.
+		.6 domain.
+		.6 AllTestsSuite.java.
+		.6 ApplicationTestSuite.java.
+		.6 DomainTestSuite.java.
+		.2 target.
+		.2 .gitignore.
+		.2 docker-compose.yml.
+	}
+\end{figure}
 
+La directory dei test rispecchia la struttura principale per \textbf{mantenere gli Unit Test organizzati} (con package paralleli come \texttt{application} e \texttt{domain} e le relative test suite). L'adozione di queste pratiche garantisce un \textbf{progetto chiaro}, strutturato e \textbf{facilmente manutenibile}, evitando al contempo problemi legati alla visibilità dei package.
 
+Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}), i casi d'uso (\texttt{application}) e la gestione dei dati/interazioni con il database (\texttt{infrastructure.persistence.jdbc}). Tale approccio strutturato assicura che ogni componente del sistema abbia \textbf{una responsabilità ben definita}, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
 
-La directory dei test rispecchia la struttura principale per mantenere gli Unit Test organizzati (con package paralleli come \texttt{application} e \texttt{domain} e le relative Test Suite). L'adozione di queste pratiche garantisce un progetto chiaro, strutturato e facilmente manutenibile, evitando al contempo problemi legati alla visibilità dei package.
-
-Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}) , i casi d'uso (\texttt{application}) e la gestione dei dati e interazioni con il database (\texttt{infrastructure.persistence.jdbc}). Tale approccio strutturato assicura che ogni componente del sistema abbia una responsabilità ben definita, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
-
+% ================================================================================================ %
 \newpage
 
 \subsection{Domain}
-Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le regole di business e la modellazione dello stato. In conformità ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
+Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le \textbf{regole di business} e la \textbf{modellazione dello stato}. In conformità ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
 La struttura gerarchica e relazionale delle entità è sintetizzata nel diagramma UML riportato in \autoref{fig:domain_UML}.
-% HO AGGIUNTO QUESTO PARAGRAFINO. SE NON TI PIACE TOGLILO!!!
 Per il diagramma completo, con metodi e attributi di ciascuna classe, si veda \href{run:img/domainUML.pdf}{il seguente PDF}.
 
-Dal punto di vista architetturale, la relazione tra \textbf{Entities} e \textbf{Value Objects} si concretizza tramite il principio della \textit{composizione}: le Entità incapsulano i Value Objects come propri attributi, delegando a questi ultimi la gestione di raggruppamenti logici e immutabili di dati (ad esempio, le informazioni generali o l'inventario di una spiaggia).
+Dal punto di vista architetturale, la relazione tra \textbf{Entities} e \textbf{Value Objects} si concretizza tramite il principio della \textit{composizione}: le entità \textbf{incapsulano} i value objects come propri attributi, \textbf{delegando} a questi ultimi la \textbf{gestione} di raggruppamenti logici e immutabili di \textbf{dati} (ad esempio, le informazioni generali o l'inventario di una spiaggia).
 
-Per quanto riguarda la modellazione degli attori principali del sistema (\textit{Customer}, \textit{Owner} e \textit{Admin}), si è optato per un approccio basato sull'\textbf{ereditarietà}. Tutti i ruoli estendono una classe base \texttt{User}, permettendo di centralizzare le funzionalità e le anagrafiche comuni, sfruttando il polimorfismo al fine di semplificare l'estensibilità del codice.
+Per quanto riguarda la modellazione degli attori principali del sistema (\textit{Customer}, \textit{Owner} e \textit{Admin}), si è optato per un approccio basato sull'\textbf{ereditarietà}. Tutti i ruoli estendono una classe base \texttt{User}, permettendo di \textbf{centralizzare le funzionalità} e le anagrafiche \textbf{comuni}, sfruttando il \textbf{polimorfismo} al fine di semplificare l'estensibilità del codice.
 \begin{figure}[H] 
     \centering
     \begin{adjustbox}{max width=1.15\textwidth, max totalheight=0.9\textheight, center}
@@ -424,176 +463,163 @@ Per quanto riguarda la modellazione degli attori principali del sistema (\textit
     \label{fig:domain_UML}
 \end{figure}
 
+% ================================================================================================ %
+
 \subsection{Application}
-Il livello applicativo ha  il compito di interconnettere  il cuore del  progetto con  il mondo esterno tramite gli strumenti precedentemente elencati.
-\subsubsection{Port-out}
-Nel  progetto, le \textbf{Port-Out} sono interfacce Java che definiscono i requisiti di persistenza e le interazioni esterne in modo astratto e universale. Questo approccio permette alla logica di business di invocare i metodi necessari senza dipendere dalla reale implementazione tecnologica sottostante. L'implementazione di queste interfacce è affidata al package \texttt{infrastructure.persistence.jdbc}, il quale ha il compito di tradurre le azioni dettate dal dominio in istruzioni JDBC per il database MySQL. Tale package include inoltre diversi \textbf{Record} (evidenziati in rosso nella \autoref{fig:PortOut}), utilizzati come strutture dati (DTO) per veicolare le informazioni estratte dal database affinché siano adatte per essere elaborate dai metodi del core applicativo.
+Il livello applicativo ha il compito di interconnettere il cuore del progetto con il mondo esterno tramite gli strumenti precedentemente elencati.
+
+\subsubsection{Port-Out}
+Nel progetto, le \textbf{Port-Out} sono interfacce Java che \textbf{definiscono i requisiti di persistenza} e le \textbf{interazioni esterne} in modo astratto e universale. Questo approccio permette alla logica di business di invocare i metodi necessari senza dipendere dalla reale implementazione tecnologica sottostante. L'implementazione di queste interfacce è affidata al package \textbf{\texttt{infrastructure.persistence.jdbc}}, il quale ha il compito di tradurre le azioni dettate dal dominio in istruzioni JDBC per il database MySQL. Tale package include inoltre diversi \textbf{record} (evidenziati in \underline{rosso} nella \autoref{fig:PortOut}), utilizzati come strutture dati (\textbf{DTO}) per veicolare le informazioni estratte dal database affinché siano adatte per essere elaborate dai metodi del core applicativo.
+
 \begin{figure}[H]
 	\centering
-
-	% --- RIGA 1: ROOT E BEACH ---
 	\begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-			out/
-			|-- beach/
-			|-- booking/
-			|-- common/
-			|-- moderation/
-			|-- review/
-			|-- user/
-			|-- TransactionManager.java
-		\end{lstlisting}
-    \end{minipage}\hfill
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		beach/
-		|-- BeachCatalogQuery.java
-		|-- BeachRepository.java
-		|-- (*@\color{red}BeachReviewDto.java@*)
-		|-- BeachReviewsQuery.java
-		|-- (*@\color{red}BeachSummary.java@*)
-		\end{lstlisting}
-    \end{minipage}\vspace{0.8cm}
-
-    % --- RIGA 2: BOOKING E USER ---
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		booking/
-		|-- AvailabilityQuery.java
-		|-- (*@\color{red}BookedInventory.java@*)
-		|-- (*@\color{red}BookedParkingSpaces.java@*)
-		|-- BookingRepository.java
-		\end{lstlisting}
-    \end{minipage}\hfill
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		user/
-		|-- AdminRepository.java
-		|-- AuthenticationUseCase.java
-		|-- CustomerRepository.java
-		|-- (*@\color{red}LoginResult.java@*)
-		|-- OwnerRepository.java
-		|-- UserRepository.java
-		\end{lstlisting}
-    \end{minipage}\vspace{0.8cm}
-
-    % --- RIGA 3: MODERATION E ALTRI ---
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		moderation/
-		|-- BanRepository.java
-		|-- ReportRepository.java
-		\end{lstlisting}
-    \end{minipage}\hfill
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		common/
-		|-- AddressRepository.java
-		
-		review/
-		|-- ReviewRepository.java
-		\end{lstlisting}
-    \end{minipage}
-    \caption{Struttura delle Port-Out}
-    \label{fig:PortOut}
+		\dirtree{%
+			.1 out/.
+			.2 beach/.
+			.2 booking/.
+			.2 common/.
+			.2 moderation/.
+			.2 review/.
+			.2 user/.
+			.2 TransactionManager.java.
+		}
+		\dirtree{%
+			.1 booking/.
+			.2 AvailabilityQuery.java.
+			.2 \color{red}BookedInventory.java.
+			.2 \color{red}BookedParkingSpaces.java.
+			.2 BookingRepository.java.
+		}
+		\dirtree{%
+			.1 moderation/.
+			.2 BanRepository.java.
+			.2 ReportRepository.java.
+		}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.48\textwidth}
+		\dirtree{%
+			.1 beach/.
+			.2 BeachCatalogQuery.java.
+			.2 BeachRepository.java.
+			.2 \color{red}BeachReviewDto.java.
+			.2 BeachReviewsQuery.java.
+			.2 \color{red}BeachSummary.java.
+		}
+		\dirtree{%
+			.1 user/.
+			.2 AdminRepository.java.
+			.2 AuthenticationUseCase.java.
+			.2 CustomerRepository.java.
+			.2 \color{red}LoginResult.java.
+			.2 OwnerRepository.java.
+			.2 UserRepository.java.
+		}
+		\dirtree{%
+			.1 common/.
+			.2 AddressRepository.java.
+		}
+		\dirtree{%
+			.1 review/.
+			.2 ReviewRepository.java.
+		}
+	\end{minipage}
+	\caption{Struttura delle Port-Out}
+	\label{fig:PortOut}
 \end{figure}
+
 Il \textbf{TransactionManager} è l'interfaccia dedicata alla gestione del ciclo di vita delle transazioni, assicurando che il flusso di operazioni sul database rispetti le proprietà \textbf{ACID} (Atomicità, Consistenza, Isolamento e Durata). Il componente implementa il pattern \textbf{Unit of Work} attraverso l'uso di un oggetto \textbf{TransactionContext}. 
 
-Questo contesto, definito tramite un'interfaccia marker, viene condiviso esplicitamente come parametro a ogni metodo delle repository coinvolto nel caso d'uso (es. \texttt{beachRepository.update(beach, context)}). Tale meccanismo garantisce che tutte le operazioni effettuate all'interno di un blocco transazionale siano atomiche: in caso di successo di ogni passaggio, il manager esegue il \textit{commit} dei dati sul database; qualora venisse sollevata un'eccezione (es. un errore di sicurezza o validazione), il manager interviene eseguendo un \textit{rollback} automatico per preservare l'integrità e la consistenza dello stato persistente.
-\subsubsection{Port-in}
+Questo contesto, definito tramite un'interfaccia marker, viene condiviso esplicitamente come parametro a ogni metodo delle repository coinvolto nel caso d'uso (es. \texttt{beachRepository.update(beach, context)}). Tale meccanismo garantisce che \textbf{tutte le operazioni} effettuate all'interno di un blocco transazionale \textbf{siano atomiche}: in caso di successo di ogni passaggio, il manager esegue il \textit{commit} dei dati sul database; qualora venisse sollevata un'eccezione (es. un errore di sicurezza o validazione), il manager interviene eseguendo un \textit{rollback} automatico per preservare l'integrità e la consistenza dello stato persistente.
+
+% ================================================================================================ %
+\newpage
+
+\subsubsection{Port-In}
 Le \textbf{Port-In} (o \textit{Driving Ports}) rappresentano i punti di ingresso all'esagono applicativo. Esse definiscono formalmente i casi d'uso e le azioni che gli attori esterni (come l'interfaccia utente o sistemi di test) possono richiedere al sistema. 
 
-In questa architettura, le Port-In sono strutturate attraverso due componenti principali:
+In questa architettura, le port-in sono strutturate attraverso due componenti principali:
+
 \begin{itemize}
-    \item \textbf{UseCase (Interfacce Java)}: definiscono i contratti delle operazioni di business. Esse dettano quali informazioni sono necessarie per eseguire un'azione e garantiscono che il mondo esterno interagisca con il core solo attraverso canali controllati,
-    \item \textbf{Command e Request (Input Models)}: rappresentati spesso come \textit{Java Record} (evidenziati in rosso nella \autoref{fig:PortIn}), questi oggetti fungono da contenitori di dati immutabili. Il loro compito è veicolare i parametri necessari per l'esecuzione del caso d'uso, permettendo una validazione sintattica preliminare prima che la richiesta raggiunga la logica di business.
+    \item \textbf{Use Case (Interfacce Java)}: definiscono i contratti delle operazioni di business. Esse dettano quali informazioni sono necessarie per eseguire un'azione e garantiscono che il mondo esterno interagisca con il core solo attraverso canali controllati;
+    \item \textbf{Command e Request (Input Models)}: rappresentati spesso come \textit{Java Record} (evidenziati in \underline{rosso} nella \autoref{fig:PortIn}), questi oggetti fungono da contenitori di dati immutabili. Il loro compito è veicolare i parametri necessari per l'esecuzione del caso d'uso, permettendo una validazione sintattica preliminare prima che la richiesta raggiunga la logica di business.
 \end{itemize}
 
-L'implementazione concreta di queste interfacce è affidata al livello \textbf{Service}. I servizi orchestrano il flusso chiamando correttamente i metodi definiti dalle Port-Out e delegando le regole decisionali alle entità del dominio, assicurando così che ogni richiesta venga elaborata in modo coerente e sicuro.
+L'implementazione concreta di queste interfacce è affidata al livello \textbf{service}. I servizi orchestrano il flusso chiamando correttamente i metodi definiti dalle port-out e delegando le regole decisionali alle entità del dominio, assicurando così che ogni richiesta venga elaborata in modo coerente e sicuro.
 
 \begin{figure}[H]
-    \centering
-
-    % --- RIGA 1: ROOT E BEACH ---
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		in/
-		|-- beach/
-		|-- booking/
-		|-- common/
-		|-- moderation/
-		|-- review/
-		|-- user/
-		\end{lstlisting}
-    \end{minipage}\hfill
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		beach/
-		|-- BrowseBeachUseCase.java
-		|-- CloseBeachUseCase.java
-		|-- (*@\color{red}CreateBeachCommand.java@*)
-		|-- CreateBeachUseCase.java
-		|-- ManageBeachUseCase.java
-		\end{lstlisting}
-    \end{minipage}\vspace{0.8cm}
-
-    % --- RIGA 2: BOOKING E USER ---
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		booking/
-		|-- BookingUseCase.java
-		|-- (*@\color{red}CreateBookingCommand.java@*)
-		|-- CreateBookingUseCase.java
-		|-- (*@\color{red}CreateManualBookingCommand.java@*)
-		|-- CreateManualBookingUseCase.java
-		\end{lstlisting}
-    \end{minipage}\hfill
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		user/
-		|-- (*@\color{red}CreateAdminRequest.java@*)
-		|-- (*@\color{red}CreateCustomerRequest.java@*)
-		|-- (*@\color{red}CreateOwnerRequest.java@*)
-		|-- (*@\color{red}CreateUserRequest.java@*)
-		|-- UserRegistrationUseCase.java
-		\end{lstlisting}
-    \end{minipage}\vspace{0.8cm}
-
-    % --- RIGA 3: MODERATION E REVIEW ---
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		moderation/
-		|-- BanUseCase.java
-		|-- (*@\color{red}CreateBanCommand.java@*)
-		|-- (*@\color{red}CreateReportCommand.java@*)
-		|-- CreateReportUseCase.java
-		|-- ManageReportUseCase.java
-		\end{lstlisting}
-    \end{minipage}\hfill
-    \begin{minipage}[t]{0.48\textwidth}
-		\begin{lstlisting}[frame=none, basicstyle=\ttfamily\footnotesize]
-		review/
-		|-- (*@\color{red}CreateReviewCommand.java@*)
-		|-- ReviewUseCase.java
-		|-- ViewBeachReviewsUseCase.java
-		
-		common/
-		|-- AddressUseCase.java
-		\end{lstlisting}
-    \end{minipage}
-    \caption{Struttura delle Port-In}
-    \label{fig:PortIn}
+	\centering
+	\begin{minipage}[t]{0.48\textwidth}
+		\dirtree{%
+			.1 in/.
+			.2 beach/.
+			.2 booking/.
+			.2 common/.
+			.2 moderation/.
+			.2 review/.
+			.2 user/.
+		}
+		\dirtree{%
+			.1 booking/.
+			.2 BookingUseCase.java.
+			.2 \color{red}CreateBookingCommand.java.
+			.2 CreateBookingUseCase.java.
+			.2 \color{red}CreateManualBookingCommand.java.
+			.2 CreateManualBookingUseCase.java.
+		}
+		\dirtree{%
+			.1 moderation/.
+			.2 BanUseCase.java.
+			.2 \color{red}CreateBanCommand.java.
+			.2 \color{red}CreateReportCommand.java.
+			.2 CreateReportUseCase.java.
+			.2 ManageReportUseCase.java.
+		}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.48\textwidth}
+		\dirtree{%
+			.1 beach/.
+			.2 BrowseBeachUseCase.java.
+			.2 CloseBeachUseCase.java.
+			.2 \color{red}CreateBeachCommand.java.
+			.2 CreateBeachUseCase.java.
+			.2 ManageBeachUseCase.java.
+		}
+		\dirtree{%
+			.1 user/.
+			.2 \color{red}CreateAdminRequest.java.
+			.2 \color{red}CreateCustomerRequest.java.
+			.2 \color{red}CreateOwnerRequest.java.
+			.2 \color{red}CreateUserRequest.java.
+			.2 UserRegistrationUseCase.java.
+		}
+		\dirtree{%
+			.1 review/.
+			.2 \color{red}CreateReviewCommand.java.
+			.2 ReviewUseCase.java.
+			.2 ViewBeachReviewsUseCase.java.
+		}
+		\dirtree{%
+			.1 common/.
+			.2 AddressUseCase.java.
+		}
+	\end{minipage}
+	\caption{Struttura delle Port-In}
+	\label{fig:PortIn}
 \end{figure}
 
+% ================================================================================================ %
 \newpage
 
 \section{Database}
-Per la gestione della persistenza dei dati è stato utilizzato il DBMS \textbf{MySQL}, configurato all'interno di un ambiente di containerizzazione \textbf{Docker}. L'interazione tra l'applicazione Java e il database avviene tramite l'interfaccia \textbf{JDBC}, utilizzando il driver ufficiale \textbf{MySQL Connector/J}.
+Per la gestione della persistenza dei dati è stato utilizzato il \textbf{DBMS MySQL}, configurato all'interno di un ambiente di containerizzazione \textbf{Docker}. L'interazione tra l'applicazione Java e il database avviene tramite l'interfaccia \textbf{JDBC}, utilizzando il driver ufficiale \textbf{MySQL Connector/J}.
 
-L'integrità del dato è assicurata a livello nativo attraverso una rigorosa definizione di vincoli (Foreign Key, Unique e Check) implementati nello script di creazione. Tale approccio permette di delegare al database la validazione delle informazioni critiche, mentre le verifiche legate alla \textbf{logica di business} sono gestite programmaticamente all'interno del codice Java dell'applicazione.
+L'integrità del dato è assicurata a livello nativo attraverso una \textbf{rigorosa definizione di vincoli} (\texttt{Foreign Key}, \texttt{Unique} e \texttt{Check}) implementati nello script di creazione. Tale approccio permette di delegare al database la validazione delle informazioni critiche, mentre le verifiche legate alla \textbf{logica di business} sono gestite programmaticamente all'interno del codice Java dell'applicazione.
 
 \subsection{Modello ER}
-Il modello Entity-Relationship (\autoref{fig:modelloER}) omette la relazione diretta tra \textit{Beaches} e \textit{Bookings} per evitare ridondanze concettuali, essendo il legame già mediato dalle entità \textit{Zones} e \textit{Spots}. In fase di implementazione del database fisico, tuttavia, tale relazione è stata introdotta per ottimizzare le performance delle query di ricerca, riducendo la complessità delle operazioni di join.
+Il modello Entity-Relationship (\autoref{fig:modelloER}) omette la relazione diretta tra le tabelle  \texttt{beaches} e \texttt{bookings} per evitare ridondanze concettuali, essendo il legame già mediato dalle entità \texttt{zones} e \texttt{spots}. In fase di implementazione del database fisico, tuttavia, tale relazione è stata introdotta per ottimizzare le performance delle query di ricerca, riducendo la complessità delle operazioni di join.
 
 \begin{figure}[H] 
     \centering
@@ -604,10 +630,11 @@ Il modello Entity-Relationship (\autoref{fig:modelloER}) omette la relazione dir
     \label{fig:modelloER}
 \end{figure}
 
+% ================================================================================================ %
 \newpage
 
 \subsection{Dizionario dei dati}
-Il dizionario (\autoref{fig:diz_entita} e \autoref{fig:diz_relazioni}) presenta per \textit{Spots} e \textit{Bookings} attributi identificativi esterni derivanti dalle relazioni con altre entità. Per semplificare le interrogazioni e la realizzazione del database si è optato per l'utilizzo di una chiave primaria artificiale (\textit{id}), preservando la valenza identificativa di questi attributi tramite vincoli \texttt{UNIQUE} e \texttt{NOT NULL}, come dettagliato nella tabella dei vincoli (\autoref{fig:tab_vincoli}).
+Il dizionario (\autoref{fig:diz_entita} e \autoref{fig:diz_relazioni}) presenta per \texttt{spots} e \texttt{bookings} attributi identificativi esterni derivanti dalle relazioni con altre entità. Per semplificare le interrogazioni e la realizzazione del database si è optato per l'utilizzo di una chiave primaria artificiale (\texttt{id}), preservando la valenza identificativa di questi attributi tramite vincoli \texttt{UNIQUE} e \texttt{NOT NULL}, come dettagliato nella tabella dei vincoli (\autoref{fig:tab_vincoli}).
 
 \begin{figure}[H]
     \centering
@@ -616,6 +643,8 @@ Il dizionario (\autoref{fig:diz_entita} e \autoref{fig:diz_relazioni}) presenta 
     \label{fig:diz_entita}
 \end{figure}
 
+% ================================================================================================ %
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{DataBase/Dizionario/relazioni}
@@ -623,11 +652,12 @@ Il dizionario (\autoref{fig:diz_entita} e \autoref{fig:diz_relazioni}) presenta 
     \label{fig:diz_relazioni}
 \end{figure}
 
+% ================================================================================================ %
 \newpage
 
 \subsection{Tabelle delle Regole}
 Di seguito vengono riportati i vincoli di integrità e le regole di derivazione che governano la logica della persistenza dei dati.
-In merito alla regola RD1 (\autoref{fig:tab_derivazioni}), si è scelta la persistenza dell'attributo \textit{totalPrice} nel database al fine di ridurre il carico computazionale di consultazione.
+In merito alla regola RD1 (\autoref{fig:tab_derivazioni}), si è scelta la persistenza dell'attributo \texttt{totalPrice} nel database al fine di ridurre il carico computazionale di consultazione.
 
 \begin{figure}[H]
 	\centering
@@ -636,6 +666,7 @@ In merito alla regola RD1 (\autoref{fig:tab_derivazioni}), si è scelta la persi
 		\centering
 		\includegraphics[width=0.85\textwidth]{DataBase/Tabelle/vincoli}
 		\caption{Tabella dei vincoli di integrità (RV)}
+		\label{fig:tab_vincoli}
 	\end{subfigure}
 	
 	\vspace{0.5cm}
@@ -651,24 +682,28 @@ In merito alla regola RD1 (\autoref{fig:tab_derivazioni}), si è scelta la persi
 	\label{fig:tabelle}
 \end{figure}
 
+% ================================================================================================ %
 \newpage
 
 \section{Mockup}
 
-In questa sezione vengono presentati i mockup dell'interfaccia grafica, realizzati con lo scopo di dimostrare visivamente come i requisiti e le rigide regole di business (definite nel Domain-Driven Design) si traducano nell'esperienza utente finale. 
+In questa sezione vengono presentati i mockup dell'interfaccia grafica, realizzati con lo scopo di \textbf{dimostrare visivamente} come i requisiti e le rigide regole di business (definite nel Domain-Driven Design) si traducano nell'esperienza utente finale. 
 
 Per ottimizzare i tempi di prototipazione e ottenere un design moderno e responsivo, sono stati impiegati due strumenti di generazione UI basati sull'Intelligenza Artificiale:
+
 \begin{itemize}
-	\item \textbf{v0.dev (Vercel):} utilizzato per generare i primi 4 mockup, focalizzati sull'esperienza Mobile (B2C) dedicata ai \textit{Customer}.
-	\item \textbf{bolt.new (StackBlitz):} utilizzato per generare gli ultimi 4 mockup, focalizzati sulle Dashboard Desktop (B2B) destinate alla gestione avanzata da parte di \textit{Owner} e \textit{Admin}.
+	\item \textbf{v0.dev (Vercel):} utilizzato per generare i primi 4 mockup, focalizzati sull'esperienza Mobile (B2C -- Business to Consumer) dedicata ai \textbf{Customer}.
+	\item \textbf{bolt.new (StackBlitz):} utilizzato per generare gli ultimi 4 mockup, focalizzati sulle Dashboard Desktop (B2B -- Business to Business) destinate alla gestione avanzata da parte di \textbf{Owner} e \textbf{Admin}.
 \end{itemize}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth]{mockups/1mockup-mainPage-desktop.jpg} 
-	\caption{\textbf{Esplora Spiagge - Desktop (UC-04):} Interfaccia desktop per la ricerca nel catalogo. La vista interroga in sola lettura (CQRS tramite la \textit{BeachCatalogQuery}) il database, mostrando esclusivamente le spiagge in stato \textit{ATTIVO} ed esponendo la valutazione media.}
+	\caption{\textbf{Esplora Spiagge - Desktop (UC-04):} interfaccia desktop per la ricerca nel catalogo. La vista interroga in sola lettura (CQRS tramite la \texttt{BeachCatalogQuery}) il database, mostrando esclusivamente le spiagge in stato \textit{ATTIVO} ed esponendo la valutazione media.}
 	\label{fig:mockup1}
 \end{figure}
+
+% ================================================================================================ %
 
 \begin{figure}[H]
 	\centering
@@ -689,59 +724,63 @@ Per ottimizzare i tempi di prototipazione e ottenere un design moderno e respons
 	\vspace{0.3cm}
 	
 	\begin{minipage}[t]{0.32\textwidth}
-		\caption{\textbf{Esplora Spiagge - Mobile (UC-04):} Versione responsiva (mobile) dell'interfaccia B2C per la consultazione del catalogo spiagge da parte di Customer e Guest.}
+		\caption{\textbf{Esplora Spiagge - Mobile (UC-04):} versione responsiva (mobile) dell'interfaccia B2C per la consultazione del catalogo spiagge da parte di customers e guests.}
 		\label{fig:mockup2}
 	\end{minipage}\hfill
 	\begin{minipage}[t]{0.32\textwidth}
-		\caption{\textbf{Flusso di Prenotazione (UC-05):} Interfaccia mobile per la creazione di una prenotazione. Evidenzia l'applicazione delle regole di dominio: controlli stringenti sulla capienza massima di parcheggi ed extra, e il calcolo in tempo reale del prezzo totale (tramite \textit{PriceCalculatorDomainService}).}
+		\caption{\textbf{Flusso di Prenotazione (UC-05):} interfaccia mobile per la creazione di una prenotazione. Evidenzia l'applicazione delle regole di dominio: controlli stringenti sulla capienza massima di parcheggi ed extra, e il calcolo in tempo reale del prezzo totale (tramite \texttt{PriceCalculatorDomainService}).}
 		\label{fig:mockup3}
 	\end{minipage}\hfill
 	\begin{minipage}[t]{0.32\textwidth}
-		\caption{\textbf{Le Mie Prenotazioni e Recensioni (UC-06 \& UC-07):} Dashboard mobile del Customer. La UI riflette visivamente gli stati della prenotazione (\textit{PENDING} e \textit{CONFIRMED}). Viene inoltre mostrato il pulsante "Lascia una recensione", sbloccato dal backend esclusivamente per i soggiorni passati.}
+		\caption{\textbf{Le Mie Prenotazioni e Recensioni (UC-06 \& UC-07):} dashboard mobile del customer. La UI riflette visivamente gli stati della prenotazione (\textit{PENDING} e \textit{CONFIRMED}). Viene inoltre mostrato il pulsante "Lascia una recensione", sbloccato dal backend esclusivamente per i soggiorni passati.}
 		\label{fig:mockup4}
 	\end{minipage}
-	
 \end{figure}
+
+% ================================================================================================ %
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth]{mockups/5mockup-bookingMgmt-desktop.jpg}
-	\caption{\textbf{Dashboard Prenotazioni Owner (UC-05 1a \& UC-06):} Interfaccia desktop B2B. Mostra la lista delle richieste in attesa con i pulsanti per l'approvazione/rifiuto e il bottone per avviare la "Prenotazione Telefonica Manuale" (che supporta dati chiamante slegati dall'ID cliente).}
+	\caption{\textbf{Dashboard Prenotazioni Owner (UC-05-1a \& UC-06):} interfaccia desktop B2B. Mostra la lista delle richieste in attesa con i pulsanti per l'approvazione/rifiuto e il bottone per avviare la "Prenotazione Telefonica Manuale" (che supporta dati chiamante slegati dall'ID cliente).}
 	\label{fig:mockup5}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth]{mockups/6mockup-seasonsMgmt-desktop.jpg}
-	\caption{\textbf{Gestione Stagioni e Prezzi (UC-14):} Il mockup dimostra l'imposizione delle regole di business del dominio: un avviso di errore per date sovrapposte (\textit{Overlap Check}) e campi prezzo resi graficamente disabilitati (Sola Lettura) per garantire l'immutabilità finanziaria.}
+	\caption{\textbf{Gestione Stagioni e Prezzi (UC-14):} Il mockup dimostra l'imposizione delle regole di business del dominio: un avviso di errore per date sovrapposte (\textit{overlap check}) e campi prezzo resi graficamente disabilitati (\textit{sola lettura}) per garantire l'immutabilità finanziaria.}
 	\label{fig:mockup6}
 \end{figure}
 
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width=0.9\textwidth]{mockups/mockup7.png}
-%	\caption{\textbf{Gestione Zone e Layout (UC-15):} Strumento di mappatura della spiaggia. La figura evidenzia il blocco logico (simboleggiato dall'icona del lucchetto) applicato alle Zone già associate a una Stagione, impedendone la modifica strutturale a tutela dell'integrità dei dati.}
-%	\label{fig:mockup7}
-%\end{figure}
+% ================================================================================================ %
 
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width=0.9\textwidth]{mockups/mockup8.png}
-%	\caption{\textbf{Dashboard di Moderazione Admin (UC-01 \& Reports):} Interfaccia desktop riservata agli Admin. Mostra la tabella delle segnalazioni evidenziando il comportamento polimorfico del Ban implementato nel backend (scelta tra \textit{App Ban} globale e \textit{Beach Ban} selettivo).}
-%	\label{fig:mockup8}
-%\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{mockups/7mockup-zonesMgmt-desktop.jpg}
+	\caption{\textbf{Gestione Zone e Layout (UC-15):} strumento di mappatura della spiaggia. La figura evidenzia il blocco logico applicato alle zone già associate a una stagione, impedendone la modifica strutturale a tutela dell'integrità dei dati.}
+	\label{fig:mockup7}
+\end{figure}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{mockups/8mockup-moderationMgmt-desktop.jpg}
+	\caption{\textbf{Dashboard di Moderazione Admin (UC-01 \& Reports):} interfaccia desktop riservata agli admins. Mostra la tabella delle segnalazioni evidenziando il comportamento polimorfico del ban implementato nel backend (scelta tra \textit{app ban} globale e \textit{beach ban} selettivo).}
+	\label{fig:mockup8}
+\end{figure}
+
+% ================================================================================================ %
 \newpage
 
 \section{Unit Testing}
 
 \subsection{Strategia e Obiettivi del Testing}
-La strategia di testing adottata per il sistema si basa sui principi della Test-Driven e Behavior-Driven validation, concentrandosi esclusivamente sui livelli \textit{Domain} e \textit{Application} dell'Architettura Esagonale. L'obiettivo principale è garantire la totale affidabilità delle regole di business e dell'orchestrazione, mantenendo i test rapidi e isolati dall'infrastruttura reale (Database).
+La strategia di testing adottata per il sistema si basa sui principi della \textbf{Test-Driven e Behavior-Driven validation}, concentrandosi esclusivamente sui livelli \textit{Domain} e \textit{Application} dell'Architettura Esagonale. L'obiettivo principale è garantire la totale affidabilità delle regole di business e dell'orchestrazione, mantenendo i test rapidi e isolati dall'infrastruttura reale (Database).
 
 Nello specifico, il testing è stato diviso in due macro-aree:
 \begin{itemize}
-	\item \textbf{Domain Layer (Test Puri):} I test sulle entità di dominio (es. \texttt{Beach}, \texttt{Booking}) e sui Value Object verificano il rispetto dei vincoli architetturali (invarianti). Garantiscono che gli oggetti non possano mai essere istanziati in stati inconsistenti (es. coordinate negative, date sovrapposte) e validano la corretta implementazione della macchina a stati (es. transizioni da PENDING a CONFIRMED) senza alcuna dipendenza esterna.
-	\item \textbf{Application Layer (Test con Mock):} I test sui Service verificano la corretta orchestrazione dei casi d'uso. Utilizzando la libreria \textbf{Mockito}, le porte di uscita e il \texttt{TransactionManager} sono stati simulati (\textit{mockati}). Questo ha permesso di testare analiticamente i percorsi di successo (Happy Paths) e le barriere di sicurezza (Sad Paths), come il blocco di operazioni non autorizzate, i conflitti di capienza (Inventario/Parcheggi) e le logiche di rollback, garantendo il pieno rispetto dei requisiti utente.
+	\item \textbf{Domain Layer (Test Puri):} i test sulle entità di dominio (es. \texttt{Beach}, \texttt{Booking}) e sui Value Object verificano il rispetto dei vincoli architetturali (invarianti). Garantiscono che gli oggetti non possano mai essere istanziati in stati inconsistenti (es. coordinate negative, date sovrapposte) e validano la corretta implementazione della macchina a stati (es. transizioni da PENDING a CONFIRMED) senza alcuna dipendenza esterna.
+	\item \textbf{Application Layer (Test con Mock):} i test sui Service verificano la corretta orchestrazione dei casi d'uso. Utilizzando la libreria \textbf{Mockito}, le porte di uscita e il \texttt{TransactionManager} sono stati simulati (\textit{mockati}). Questo ha permesso di testare analiticamente i percorsi di successo (\textit{Happy Paths}) e le barriere di sicurezza (\textit{Sad Paths}), come il blocco di operazioni non autorizzate, i conflitti di capienza (inventario/parcheggi) e le logiche di rollback, garantendo il pieno rispetto dei requisiti utente.
 \end{itemize}
 
 \subsection{Copertura dei Test: Classi e Metodi}
@@ -750,82 +789,88 @@ Nello specifico, il testing è stato diviso in due macro-aree:
 I test di questo layer verificano la pura logica di business, l'integrità dei dati e i vincoli architetturali, senza alcuna dipendenza da framework o database esterni.
 
 \begin{itemize}[leftmargin=*]
-	\item \textbf{Aggregato \texttt{Beach}:}
+	\item \underline{\textbf{Aggregato \texttt{Beach}:}}
 	\begin{itemize}[nosep]
-		\item \textit{Integrità e Macchina a Stati:} Validazione dei requisiti minimi per l'attivazione e blocco rigoroso delle modifiche strutturali qualora la spiaggia sia operativa (\texttt{ACTIVE}) o permanentemente chiusa (\texttt{CLOSED}).
-		\item \textit{Logica Temporale (Stagioni):} Verifica dell'algoritmo di anti-sovrapposizione delle date (\textit{Overlap Check}) e dell'impossibilità di accorciare stagioni già definite.
-		\item \textit{Logica Spaziale (Zone):} Test sul blocco di immutabilità che impedisce di eliminare, rinominare o alterare Zone già vincolate a una Stagione esistente.
+		\item \textbf{Integrità e Macchina a Stati:} validazione dei requisiti minimi per l'attivazione e blocco rigoroso delle modifiche strutturali qualora la spiaggia sia operativa (\texttt{ACTIVE}) o permanentemente chiusa (\texttt{CLOSED});
+		\item \textbf{Logica Temporale (stagioni):} verifica dell'algoritmo di anti-sovrapposizione delle date (\textit{overlap check}) e dell'impossibilità di accorciare stagioni già definite;
+		\item \textbf{Logica Spaziale (zone):} test sul blocco di immutabilità che impedisce di eliminare, rinominare o alterare zone già vincolate a una stagione esistente.
 	\end{itemize}
 	
-	\item \textbf{Aggregato \texttt{Booking} e \texttt{PriceCalculator}:}
+	\item \underline{\textbf{Aggregato \texttt{Booking} e \texttt{PriceCalculator}:}}
 	\begin{itemize}[nosep]
-		\item \textit{Macchina a Stati e Sicurezza:} Transizioni di stato sicure (\textit{Pending $\rightarrow$ Confirmed $\rightarrow$ Cancelled/Rejected}) e regola di declassamento automatico: ogni modifica ad una prenotazione già confermata forza il ritorno allo stato \textit{Pending}.
-		\item \textit{Integrità dei Dati:} Verifica della differenziazione tra prenotazioni di utenti registrati e chiamanti manuali (pulizia automatica del numero di telefono).
-		\item \textit{Domain Service:} Test rigorosi sul \texttt{PriceCalculator} per garantire che il calcolo del totale incroci correttamente la data, la zona dello spot e il tariffario stagionale, bloccando richieste anomale (es. spot inesistenti o date fuori stagione).
+		\item \textbf{Macchina a Stati e Sicurezza:} transizioni di stato sicure (\textit{PENDING $\rightarrow$ CONFIRMED $\rightarrow$ CANCELLED/REJECTED}) e regola di declassamento automatico: ogni modifica ad una prenotazione già confermata forza il ritorno allo stato \textit{PENDING};
+		\item \textbf{Integrità dei Dati:} verifica della differenziazione tra prenotazioni di utenti registrati e chiamanti manuali (pulizia automatica del numero di telefono);
+		\item \textbf{Domain Service:} test rigorosi sul \texttt{PriceCalculator} per garantire che il calcolo del totale incroci correttamente la data, la zona dello spot e il tariffario stagionale, bloccando richieste anomale (es. spot inesistenti o date fuori stagione).
 	\end{itemize}
 	
-	\item \textbf{Gerarchia \texttt{User} (\texttt{Customer}, \texttt{Owner}, \texttt{Admin}):}
+% ================================================================================================ %
+	\newpage
+	
+	\item \underline{\textbf{Gerarchia \texttt{User} (\texttt{Customer}, \texttt{Owner}, \texttt{Admin}):}}
 	\begin{itemize}[nosep]
-		\item \textit{Validazione Ereditata:} Test astratti che garantiscono la validazione di email (formato e lunghezza), username e anagrafica per tutte le implementazioni.
-		\item \textit{Comportamenti Specifici:} Gestione corretta dei flag di sicurezza (disattivazione OTP per Owner/Admin) e logica di chiusura permanente dell'account per il Customer.
+		\item \textbf{Validazione Ereditata:} test astratti che garantiscono la validazione di email (formato e lunghezza), username e anagrafica per tutte le implementazioni;
+		\item \textbf{Comportamenti Specifici:} gestione corretta dei flag di sicurezza (disattivazione OTP per Owner/Admin) e logica di chiusura permanente dell'account per il Customer.
 	\end{itemize}
 	
-	\item \textbf{Moderazione (\texttt{Ban}, \texttt{Report}, \texttt{Review}):}
+	\item \underline{\textbf{Moderazione (\texttt{Ban}, \texttt{Report}, \texttt{Review}):}}
 	\begin{itemize}[nosep]
-		\item \textit{Invarianti di Dominio:} Impossibilità di auto-segnalarsi, limiti stringenti sulle valutazioni (1-5 stelle) e controlli temporali (divieto di recensioni o report nel futuro).
-		\item \textit{Coerenza Polimorfica:} Verifica delle dipendenze corrette in base al tipo di Ban (un Ban globale non deve avere ID spiaggia, un Ban locale lo richiede obbligatoriamente).
+		\item \textbf{Invarianti di Dominio:} impossibilità di auto-segnalarsi, limiti stringenti sulle valutazioni (1-5 stelle) e controlli temporali (divieto di recensioni o report nel futuro);
+		\item \textbf{Coerenza Polimorfica:} verifica delle dipendenze corrette in base al tipo di ban (un ban globale non deve avere ID spiaggia, un ban locale lo richiede obbligatoriamente).
 	\end{itemize}
 	
-	\item \textbf{Value Objects e Layout (\texttt{Inventory}, \texttt{Services}, \texttt{Pricing}, \texttt{Spot}, ecc.):}
+	\item \underline{\textbf{Value Objects e Layout (\texttt{Inventory}, \texttt{Services}, \texttt{Pricing}, \texttt{Spot}, ecc.):}}
 	\begin{itemize}[nosep]
-		\item \textit{Contratti e Immutabilità:} Difesa assoluta contro valori matematicamente illogici (quantità o prezzi negativi).
-		\item \textit{Pattern Creazionali:} Verifica dell'inizializzazione sicura tramite Static Factories (\texttt{empty()}, \texttt{none()}) e pattern Builder (incluso il costruttore copia).
-		\item \textit{Copie Difensive:} Verifica che liste interne (come l'elenco di Spot in una Zona) non possano essere alterate dall'esterno una volta istanziate.
+		\item \textbf{Contratti e Immutabilità:} difesa assoluta contro valori matematicamente illogici (quantità o prezzi negativi);
+		\item \textbf{Pattern Creazionali:} verifica dell'inizializzazione sicura tramite \textit{Static Factories} (\texttt{empty()}, \texttt{none()}) e pattern \textit{Builder} (incluso il costruttore copia);
+		\item \textbf{Copie Difensive:} verifica che liste interne (come l'elenco di spot in una zona) non possano essere alterate dall'esterno una volta istanziate.
 	\end{itemize}
 \end{itemize}
 
-\vspace{0.5cm} % Un po' di respiro tra Domain e Application
+\vspace{0.5cm}
 
 \subsubsection*{Application Layer (Services)}
-I test di questo layer verificano la corretta orchestrazione dei flussi applicativi, l'integrazione tra aggregati distinti e l'applicazione delle regole di sicurezza, simulando le dipendenze esterne (Database e API) tramite l'uso di \textit{Mock}.
+I test di questo layer verificano la corretta orchestrazione dei flussi applicativi, l'integrazione tra aggregati distinti e l'applicazione delle regole di sicurezza, simulando le dipendenze esterne (Database e API) tramite l'uso di \textbf{Mockito}.
 
 \begin{itemize}[leftmargin=*]
-	\item \textbf{Gestione Spiaggia (\texttt{ManageBeachService}, \texttt{CreateBeachService}, \texttt{CloseBeachService}):}
+	\item \underline{\textbf{Gestione Spiaggia (\texttt{ManageBeachService}, \texttt{CreateBeachService}, \texttt{CloseBeachService}):}}
 	\begin{itemize}[nosep]
-		\item \textit{Creazione e Vincoli:} Verifica del blocco architettonico della relazione 1:1 tra Owner e Beach e salvataggio automatico in stato \textit{Draft} (inattivo) in caso di configurazione parziale (UC-10).
-		\item \textit{Gestione Operativa:} Test sui \textit{Delta Updates} per l'aggiornamento di Inventario e Parcheggi, garantendo che riduzioni di capienza non invalidino prenotazioni future già confermate (UC-11).
-		\item \textit{Ciclo di Vita:} Verifica del processo di attivazione/disattivazione (UC-12) e chiusura irreversibile (UC-13), che garantisce l'annullamento a cascata delle prenotazioni future tramite il \texttt{BookingRepository}.
+		\item \textbf{Creazione e Vincoli:} verifica del blocco architettonico della relazione 1:1 tra Owner e Beach e salvataggio automatico in stato \textit{draft} (inattivo) in caso di configurazione parziale (UC-10);
+		\item \textbf{Gestione Operativa:} test sui \textit{Delta Updates} per l'aggiornamento di inventario e parcheggi, garantendo che riduzioni di capienza non invalidino prenotazioni future già confermate (UC-11);
+		\item \textbf{Ciclo di Vita:} verifica del processo di attivazione/disattivazione (UC-12) e chiusura irreversibile (UC-13), che garantisce l'annullamento a cascata delle prenotazioni future tramite il \texttt{BookingRepository}.
 	\end{itemize}
 	
-	\item \textbf{Motore di Prenotazione (\texttt{CreateBookingService}, \texttt{BookingService}, \texttt{CreateManualBookingService}):}
+	\item \underline{\textbf{Motore di Prenotazione (\texttt{CreateBookingService}, \texttt{BookingService}, \texttt{CreateManualBookingService}):}}
 	\begin{itemize}[nosep]
-		\item \textit{Orchestrazione Sicura:} Verifica incrociata (\textit{Cross-Aggregate Validation}) prima del salvataggio: controllo disponibilità residua di parcheggi e inventario, assenza di ban attivi per l'utente, e verifica che gli spot selezionati appartengano effettivamente alla spiaggia richiesta.
-		\item \textit{Prenotazioni Manuali (Owner):} Test del flusso B2B (UC-05 1a) che salta il check dell'utente (Guest calling) e impone l'approvazione automatica (stato \textit{CONFIRMED}).
-		\item \textit{Vincoli Temporali:} Blocco categorico di aggiornamenti, cancellazioni o approvazioni su prenotazioni la cui data coincida con quella odierna o passata.
+		\item \textbf{Orchestrazione Sicura:} verifica incrociata (\textbf{Cross-Aggregate Validation}) prima del salvataggio: controllo disponibilità residua di parcheggi e inventario, assenza di ban attivi per l'utente, e verifica che gli spot selezionati appartengano effettivamente alla spiaggia richiesta;
+		\item \textbf{Prenotazioni Manuali (Owner):} Test del flusso B2B (UC-05 1a) che salta il check dell'utente (\textit{Guest calling}) e impone l'approvazione automatica (stato \textit{CONFIRMED});
+		\item \textbf{Vincoli Temporali:} blocco categorico di aggiornamenti, cancellazioni o approvazioni su prenotazioni la cui data coincida con quella odierna o passata.
+	\end{itemize}
+
+% ================================================================================================ %
+	\newpage
+		
+	\item \underline{\textbf{Autenticazione e Utenze (\texttt{AuthenticationService}, \texttt{CreateUserService}, \texttt{ManageUserService}):}}
+	\begin{itemize}[nosep]
+		\item \textbf{Gateway di Sicurezza:} test completi sul processo di Login (UC-01), che bloccano tentativi di accesso con credenziali errate, account disattivati o ban attivi (sia a livello applicativo che di struttura);
+		\item \textbf{Transazioni Atomiche:} verifica del pattern \textit{Template Method} per la creazione utenti: hashing sicuro della password e rollback automatico in caso di violazione dei vincoli (es. email/username duplicati);
+		\item \textbf{Gestione Sicura Dati:} test sulle operazioni sensibili (cambio email o chiusura account Customer) che richiedono la ri-validazione della password attuale per essere autorizzate.
 	\end{itemize}
 	
-	\item \textbf{Autenticazione e Utenze (\texttt{AuthenticationService}, \texttt{CreateUserService}, \texttt{ManageUserService}):}
+	\item \underline{\textbf{Moderazione e Recensioni (\texttt{BanService}, \texttt{CreateReportService}, \texttt{ReviewService}):}}
 	\begin{itemize}[nosep]
-		\item \textit{Gateway di Sicurezza:} Test completi sul processo di Login (UC-01), che bloccano tentativi di accesso con credenziali errate, account disattivati o ban attivi (sia a livello applicativo che di struttura).
-		\item \textit{Transazioni Atomiche:} Verifica del pattern \textit{Template Method} per la creazione utenti: hashing sicuro della password e rollback automatico in caso di violazione dei vincoli (es. Email/Username duplicati).
-		\item \textit{Gestione Sicura Dati:} Test sulle operazioni sensibili (cambio Email o chiusura account Customer) che richiedono la ri-validazione della password attuale per essere autorizzate.
+		\item \textbf{Polimorfismo Sanzionatorio:} test della logica di \texttt{Ban} che dirama azioni differenti: un \textit{app ban} elimina tutte le prenotazioni future (per i customer) o chiude l'intera struttura (per gli owner), mentre un \textit{beach ban} agisce solo a livello locale;
+		\item \textbf{Precondizioni Rigorose:} un utente può lasciare una recensione (UC-07) o un report solo se il sistema certifica (tramite query su \texttt{BookingRepository}) un soggiorno effettivamente completato nel passato e l'assenza di provvedimenti disciplinari attivi;
+		\item \textbf{Prevenzione IDOR:} verifica di sicurezza (Insecure Direct Object Reference) che impedisce a un utente di eliminare una recensione o un report non di sua proprietà.
 	\end{itemize}
 	
-	\item \textbf{Moderazione e Recensioni (\texttt{BanService}, \texttt{CreateReportService}, \texttt{ReviewService}):}
+	\item \underline{\textbf{Query Services (\texttt{BrowseBeachService}, \texttt{ManageReportService}, \texttt{ViewBeachReviewsService}):}}
 	\begin{itemize}[nosep]
-		\item \textit{Polimorfismo Sanzionatorio:} Test della logica di Ban che dirama azioni differenti: un \textit{App Ban} elimina tutte le prenotazioni future (per i Customer) o chiude l'intera struttura (per gli Owner), mentre un \textit{Beach Ban} agisce solo a livello locale.
-		\item \textit{Precondizioni Rigorose:} Un utente può lasciare una recensione (UC-07) o un report solo se il sistema certifica (tramite query su \texttt{BookingRepository}) un soggiorno effettivamente completato nel passato e l'assenza di provvedimenti disciplinari attivi.
-		\item \textit{Prevenzione IDOR:} Verifica di sicurezza (Insecure Direct Object Reference) che impedisce a un utente di eliminare una recensione o un report non di sua proprietà.
-	\end{itemize}
-	
-	\item \textbf{Query Services / CQRS (\texttt{BrowseBeachService}, \texttt{ManageReportService}, \texttt{ViewBeachReviewsService}):}
-	\begin{itemize}[nosep]
-		\item \textit{Read Models:} Test focalizzati sull'interrogazione ottimizzata dei dati, verificando la corretta aggregazione dei DTO (es. \texttt{BeachSummary}) filtrati per keyword, paginazione o stato attivo, e l'unione corretta di liste multiple (es. report ricevuti e inviati).
+		\item \textbf{Read Models:} test focalizzati sull'interrogazione ottimizzata dei dati, verificando la corretta aggregazione dei DTO (es. \texttt{BeachSummary}) filtrati per keyword, paginazione o stato attivo, e l'unione corretta di liste multiple (es. report ricevuti e inviati).
 	\end{itemize}
 \end{itemize}
 
 \subsection{Esecuzione dei Test tramite JUnit 5 Suites}
-Per facilitare l'esecuzione e l'integrazione continua (CI/CD), l'infrastruttura di test è stata organizzata utilizzando la funzionalità \textit{Test Suite} fornita da JUnit 5 (modulo \texttt{junit-platform-suite}). Sono state create tre classi orchestratrici principali:
+Per facilitare l'esecuzione e l'integrazione continua (CI/CD), l'infrastruttura di test è stata organizzata utilizzando la funzionalità \textbf{Test Suite} fornita da \textbf{JUnit 5} (modulo \texttt{junit-platform-suite}). Sono state create \textbf{tre classi orchestratrici} principali:
 
 \begin{enumerate}
 	\item \textbf{\texttt{DomainTestSuite}:} Questa suite include esclusivamente i pacchetti sotto \newline \texttt{com.example.s\_balneare.domain}. È progettata per essere eseguita in pochi millisecondi. Essendo i test di dominio completamente isolati, questa suite viene utilizzata frequentemente durante lo sviluppo attivo per garantire che le modifiche non infrangano le regole matematiche o i vincoli logici degli aggregati.

@@ -179,7 +179,7 @@ Il programma coinvolge tre attori principali: \textbf{Customer}, \textbf{Owner} 
 Il programma si pone l'obiettivo di implementare un'applicazione a scopi commerciali; di conseguenza l'azione di eliminare prenotazioni, spiagge, utenti ed altre informazioni di natura fiscale risulterebbe un comportamento superficiale da parte dei programmatori. Per questo motivo, il sistema non prevede l'eliminazione fisica di record sensibili, ma utilizza un meccanismo di disattivazione logica.
 
 Di seguito (\autoref{fig:UseCases}) è riportato il \textbf{diagramma degli Use Cases} del progetto, nelle sezioni successive verranno analizzati nel dettaglio i flussi più rilevanti.
-Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{run:img/usecase_tables.pdf}{il seguente PDF}.
+Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://github.com/narcisDanielN/gestione_stabilimento_balneare/blob/main/relazione/img/usecase_tables.pdf}{il seguente PDF}.
 \begin{figure}[H] 
     \centering
     \makebox[\textwidth][c]{
@@ -449,7 +449,7 @@ Ogni package interagisce con gli altri per svolgere compiti specifici, mantenend
 \subsection{Domain}
 Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le \textbf{regole di business} e la \textbf{modellazione dello stato}. In conformità ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
 La struttura gerarchica e relazionale delle entità è sintetizzata nel diagramma UML riportato in \autoref{fig:domain_UML}.
-Per il diagramma completo, con metodi e attributi di ciascuna classe, si veda \href{run:img/domainUML.pdf}{il seguente PDF}.
+Per il diagramma completo, con metodi e attributi di ciascuna classe, si veda \href{https://github.com/narcisDanielN/gestione_stabilimento_balneare/blob/main/relazione/img/domainUML.pdf}{il seguente PDF}.
 
 Dal punto di vista architetturale, la relazione tra \textbf{Entities} e \textbf{Value Objects} si concretizza tramite il principio della \textit{composizione}: le entità \textbf{incapsulano} i value objects come propri attributi, \textbf{delegando} a questi ultimi la \textbf{gestione} di raggruppamenti logici e immutabili di \textbf{dati} (ad esempio, le informazioni generali o l'inventario di una spiaggia).
 

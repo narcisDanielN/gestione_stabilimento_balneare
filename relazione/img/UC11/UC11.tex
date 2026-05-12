@@ -1,13 +1,15 @@
 \documentclass[border=10pt]{standalone}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{array}
+\usepackage{lmodern}
 
 \newcommand{\usecasetable}[9]{
     \renewcommand{\arraystretch}{1.4}
-    \begin{tabularx}{16cm}{|l|>{\raggedright\arraybackslash}X|}
+    \begin{tabularx}{19cm}{|l|>{\raggedright\arraybackslash}X|}
         \hline
         \textbf{ID Use Case} & #1 \\ \hline
         \textbf{Nome Use Case} & #2 \\ \hline
@@ -17,7 +19,7 @@
         \textbf{Postcondizioni} & #6 \\ \hline
         \textbf{Flusso Principale} & #7 \\ \hline
         \textbf{Flussi alternativi} & #8 \\ \hline
-        \textbf{Business Rules} & #9 \\ \hline
+        \textbf{Business Rules e Riferimenti} & #9 \\ \hline
     \end{tabularx}
 }
 
@@ -26,7 +28,7 @@
 	{UC-11}
 	{Manage Beach}
 	{Owner}
-	{Permette all'Owner di aggiornare i dati generali, l'inventario, i servizi, i parcheggi e di gestire la struttura delle Stagioni e delle Zone, nel rigoroso rispetto dello stato di attività della spiaggia.}
+	{Permette all'Owner di aggiornare i dati generali, l'inventario, i servizi e i parcheggi, nel rigoroso rispetto dello stato di attività della spiaggia.}
 	{L'Owner ha effettuato il login, possiede una spiaggia associata e l'account/spiaggia non sono soggetti a Ban (già verificato al login).}
 	{Il database viene aggiornato con le nuove informazioni della spiaggia, dell'inventario, dei servizi e/o dei parcheggi.}
 	{
@@ -52,6 +54,10 @@
 		\begin{enumerate}[nosep, leftmargin=*]
 			\item[•] Dati anagrafici, Inventario, Servizi e Parcheggio sono modificabili esclusivamente in stato INATTIVO.
 			\item[•] I controlli di capienza (Inventario e Parcheggi) devono garantire la retrocompatibilità sia con le Stagioni in corso e quelle in futuro che con le prenotazioni già accettate o in approvazione (CONFIRMED/PENDING).
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageBeachServiceTest} nel package \texttt{service}; \texttt{BeachTest}, \texttt{BeachGeneralTest}, \texttt{BeachServicesTest}, \texttt{BeachInventoryTest} e \texttt{ParkingTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 \end{document}

@@ -1,12 +1,12 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{tabularx}
-\usepackage{booktabs} % For better looking horizontal lines
+\usepackage{booktabs}
 \usepackage[margin=1in]{geometry}
 \usepackage{enumitem}
 \usepackage{array}
+\usepackage{lmodern}
 
-% Define a custom command for the table style to save time
 \newcommand{\usecasetable}[9]{
 	\begin{table}[h!]
 		\centering
@@ -22,7 +22,7 @@
 			\textbf{Postcondizioni} & #6 \\ \hline
 			\textbf{Flusso Principale} & #7 \\ \hline
 			\textbf{Flussi alternativi} & #8 \\ \hline
-			\textbf{Business Rules} & #9 \\ \hline
+			\textbf{Business Rules e Riferimenti} & #9 \\ \hline
 		\end{tabularx}
 	\end{table}
 }
@@ -63,6 +63,10 @@
 			\item[•] Un account con "App Ban" non può mai generare una sessione di login valida.
 			\item[•] I nuovi account Owner e Admin creati da un (altro) Admin non possono accedere alle funzionalità del sistema senza aver prima sostituito la password OTP.
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{AuthenticationServiceTest} nel package \texttt{service}; \texttt{UserTest}, \texttt{CustomerTest} \texttt{OwnerTest} e \texttt{AdminTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 	
 	\newpage
@@ -87,7 +91,7 @@
 	{
 		\begin{enumerate}[nosep, leftmargin=25px]
 			\item[\textbf{2a.}] \textbf{L'utente è un Customer:} Il sistema mostra anche l'indirizzo;
-			\item[\textbf{3a.}] \textbf{L'utente è un Customer} L'utente può modificare anche l'indirizzo; 
+			\item[\textbf{3a.}] \textbf{L'utente è un Customer:} L'utente può modificare anche l'indirizzo; 
 			\item[\textbf{1a.}] \textbf{Cambio email (da passo 1):}
 			\begin{enumerate}[nosep, leftmargin=*]
 				\item[i.] L'utente naviga su "Cambia Email"; 
@@ -123,6 +127,11 @@
 			\item[•] Solo Customer possiede indirizzo e numero di telefono;
 			\item[•] Username, nome, cognome (per i Customers: indirizzo) possono essere cambiati allo stesso momento. Email, Password (per i Customers: numero di telefono) invece devono essere cambiati singolarmente attraversando dei check di sicurezza.
 		\end{enumerate}
+		
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageUserServiceTest}, \texttt{ManageCustomerServiceTest}, \texttt{ManageOwnerServiceTest} e \texttt{ManageAdminServiceTest} nel package \texttt{service}; \texttt{UserTest}, \texttt{CustomerTest}, \texttt{OwnerTest} e \texttt{AdminTest} nel package \texttt{domain}. \newline Vengono usate anche \texttt{service.AddressServiceTest} e \texttt{domain.AddressTest} in caso di un \texttt{Customer} che decide di modificare l'indirizzo.
+		\end{enumerate}
 	}
 	
 	\newpage
@@ -154,6 +163,10 @@
 		\begin{enumerate}[nosep, leftmargin=*]
 			\item[•] Tutti i campi sono obbligatori (non null).
 			\item[•] Lo Username deve essere univoco a livello globale.
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{CreateUserServiceTest}, \texttt{CreateCustomerServiceTest} e \texttt{AddressServiceTest} nel package \texttt{service}; \texttt{UserTest}, \texttt{CustomerTest} e \texttt{AddressTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 		
@@ -199,6 +212,12 @@
 			\item[•] I risultati della ricerca per città devono includere anche spiagge limitrofe se configurato nel sistema.
 			\item[•] La visualizzazione dei dettagli non impegna alcuna risorsa (non blocca posti spiaggia).
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Mockup}: si vedano Figure 16 e 17 - Esplora Spiagge (Desktop e Mobile)
+			
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{BrowseBeachServiceTest} e \texttt{ViewBeachReviewsServiceTest} nel package \texttt{service}; \texttt{BeachTest}, \texttt{BeachGeneralTest}, \texttt{BeachServicesTest} e \texttt{ReviewTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -224,7 +243,7 @@
 		\end{enumerate}
 	}
 	{
-		\begin{enumerate}[nosep, leftmargin=33px]
+		\begin{enumerate}[nosep, leftmargin=36px]
 			\item[\textbf{1a.}] \textbf{Flusso Owner (Prenotazione Telefonica):}
 			\begin{enumerate}[nosep, leftmargin=*]
 				\item[i.] L'Owner accede al pannello gestionale della propria spiaggia e avvia una nuova prenotazione;
@@ -244,6 +263,12 @@
 			\item[•] Le prenotazioni create dall'Owner sono considerate già confermate (CONFIRMED). 
 			\item[•] L'Owner non può selezionare la spiaggia: il sistema forza la prenotazione solo sullo stabilimento di sua proprietà.
 			\item[•] Il calcolo del totale si basa sul tariffario (Season/Zone) impostato per quella data.
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Mockup}: si veda Figura 16 - Flusso di Prenotazione
+			
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{CreateBookingServiceTest} e \texttt{CreateManualBookingServiceTest} nel package \texttt{service}; \texttt{BookingTest}, \texttt{BookingParkingTest} e \texttt{PriceCalculatorTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 		
@@ -290,6 +315,12 @@
 			\item[•] Ogni modifica ai posti o ai servizi da parte del Customer riporta una prenotazione CONFIRMED allo stato PENDING (richiedendo una nuova approvazione da parte dell'Owner).
 			\item[•] Le modifiche sono inibite a partire dalla mezzanotte ($00:00$) del giorno stesso della prenotazione.
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Mockup}: si vedano Figure 17 e 18 - Gestione Prenotazioni (Customer e Owner)
+			
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{BookingServiceTest} nel package \texttt{service}; \texttt{BookingTest}, \texttt{BookingParkingTest} e \texttt{PriceCalculatorTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -333,6 +364,12 @@
 			\item[•] Il sistema accetta recensioni solo per prenotazioni la cui data è strettamente minore della data odierna (es. prenotazione il 19 luglio, recensibile dal 20 luglio).
 			\item[•] L'App Ban è già gestito a monte dal Login (UC-01).
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Mockup}: si veda Figura 17 - Le Mie Prenotazioni e Recensioni
+			
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ReviewServiceTest} nel package \texttt{service}; \texttt{ReviewTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -368,6 +405,10 @@
 			\item[•] Le prenotazioni passate (storico) non vengono cancellate, ma restano a disposizione degli Owner per motivi fiscali e di reportistica.
 			\item[•] Vengono cancellate solo le prenotazioni con data $>$ data odierna.
 			\item[•] L'operazione è irreversibile: il Customer non potrà più accedere né recuperare l'account.
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageCustomerServiceTest} nel package \texttt{service}; \texttt{UserTest} e \texttt{CustomerTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 		
@@ -412,6 +453,10 @@
 			\item[•] Non è possibile segnalare un Customer se le misure restrittive (App Ban o Beach Ban) sono già attive su di lui.
 			\item[•] La regola temporale è rigorosa: si possono segnalare solo eventi per cui la Data Prenotazione $<$ Data Odierna.
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{CreateReportServiceTest} nel package \texttt{service}; \texttt{ReportTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -451,15 +496,19 @@
 			\item[•] Relazione 1:1 rigida: un Owner può possedere e gestire al massimo una spiaggia nel sistema.
 			\item[•] Per poter passare allo stato ATTIVO, la spiaggia deve possedere almeno i requisiti minimi operativi (Inventario, Servizi e Parcheggi definiti; almeno una Stagione e una Zona configurate, come definito dalle regole di business generali).
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{CreateBeachServiceTest} e \texttt{AddressServiceTest} nel package \texttt{service}, tutte le classi nei packages \texttt{domain.beach} e \texttt{domain.common}.
+		\end{enumerate}
 	}
 		
 	\newpage
 	
-	\usecasetable
+		\usecasetable
 	{UC-11}
 	{Manage Beach}
 	{Owner}
-	{Permette all'Owner di aggiornare i dati generali, l'inventario, i servizi, i parcheggi e di gestire la struttura delle Stagioni e delle Zone, nel rigoroso rispetto dello stato di attività della spiaggia.}
+	{Permette all'Owner di aggiornare i dati generali, l'inventario, i servizi e i parcheggi, nel rigoroso rispetto dello stato di attività della spiaggia.}
 	{L'Owner ha effettuato il login, possiede una spiaggia associata e l'account/spiaggia non sono soggetti a Ban (già verificato al login).}
 	{Il database viene aggiornato con le nuove informazioni della spiaggia, dell'inventario, dei servizi e/o dei parcheggi.}
 	{
@@ -485,6 +534,10 @@
 		\begin{enumerate}[nosep, leftmargin=*]
 			\item[•] Dati anagrafici, Inventario, Servizi e Parcheggio sono modificabili esclusivamente in stato INATTIVO.
 			\item[•] I controlli di capienza (Inventario e Parcheggi) devono garantire la retrocompatibilità sia con le Stagioni in corso e quelle in futuro che con le prenotazioni già accettate o in approvazione (CONFIRMED/PENDING).
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageBeachServiceTest} nel package \texttt{service}; \texttt{BeachTest}, \texttt{BeachGeneralTest}, \texttt{BeachServicesTest}, \texttt{BeachInventoryTest} e \texttt{ParkingTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 		
@@ -520,6 +573,10 @@
 			\item[•] La Disattivazione è un'operazione non distruttiva: non altera lo stato (PENDING/CONFIRMED) delle prenotazioni esistenti e permette all'Owner di continuare a operare su di esse.
 			\item[•] Se l'intento è quello di chiudere definitivamente la spiaggia, vedi UC-13 (Close Beach).
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageBeachServiceTest} nel package \texttt{service}; \texttt{BeachTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -551,6 +608,10 @@
 		\begin{enumerate}[nosep, leftmargin=*]
 			\item[•] La chiusura è un'azione irreversibile riguardante le prenotazioni e la spiaggia. 
 			\item[•] Vengono aggiornate nello stato CANCELLED solo le prenotazioni che devono ancora avvenire.
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{CloseBeachServiceTest} nel package \texttt{service}; \texttt{BeachTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 		
@@ -589,6 +650,12 @@
 			\item[•] Non è possibile accorciare la durata o posticipare l'inizio di una stagione già creata.
 			\item[•] Prezzi e tariffe zonali diventano completamente immutabili dal secondo esatto in cui viene generata la prima prenotazione per quella specifica stagione.
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Mockup}: si veda Figura 19 - Gestione Stagioni e Prezzi
+			
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageBeachServiceTest} nel package \texttt{service}; \texttt{SeasonTest}, \texttt{ZoneTariffTest} e \texttt{PriceCalculatorTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -619,6 +686,12 @@
 		\begin{enumerate}[nosep, leftmargin=*]
 			\item[•] Una volta creata, una zona è "libera" e completamente modificabile.
 			\item[•] Nel momento esatto in cui la Zona viene aggiunta al set di una Stagione, questa diventa rigorosamente Immutabile in termini di layout, per preservare lo storico della disposizione della spiaggia.
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Mockup}: si veda Figura 20 - Gestione Zone e Layout
+			
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageBeachServiceTest} nel package \texttt{service}; \texttt{ZoneTest} e \texttt{SpotTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 		
@@ -654,6 +727,10 @@
 			\item[•] Email e Username devono essere globalmente univoci all'interno di tutto il database utenti.
 			\item[•] La password assegnata è temporanea (One-Time Password) e il nuovo Owner sarà forzato a cambiarla al primo accesso.
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{CreateUserServiceTest} e \texttt{CreateOwnerServiceTest} nel package \texttt{service}; \texttt{UserTest} e \texttt{OwnerTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -687,6 +764,10 @@
 			\item[•] Email e Username devono essere globalmente univoci all'interno dell'intero database utenti.
 			\item[•] La password assegnata è temporanea (One-Time Password) e il nuovo Admin sarà forzato a cambiarla al primo accesso.
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{CreateUserServiceTest} e \texttt{CreateAdminServiceTest} nel package \texttt{service}; \texttt{UserTest} e \texttt{AdminTest} nel package \texttt{domain}.
+		\end{enumerate}
 	}
 		
 	\newpage
@@ -719,6 +800,12 @@
 		\begin{enumerate}[nosep, leftmargin=*]
 			\item[•] Un report valutato (APPROVED o REJECTED) non può mai tornare in stato PENDING.
 			\item[•] Il sistema deve obbligatoriamente mostrare lo storico dei report passati per fornire il contesto necessario all'Admin.
+		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+			\item[•] \textbf{Mockup}: si veda Figura 21 - Dashboard di Moderazione Admin 
+			
+			\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{ManageReportServiceTest} nel package \texttt{service}; \texttt{ReportTest} nel package \texttt{domain}.
 		\end{enumerate}
 	}
 		
@@ -755,5 +842,11 @@
 			\item[•] Conseguenze Beach Ban (Customer): Impedisce permanentemente la creazione di nuove prenotazioni nella spiaggia oggetto del report.
 			\item[•] Conseguenze App Ban (Customer o Owner): Disattiva permanentemente l'accesso al sistema. Cancella automaticamente in stato CANCELLED tutte le prenotazioni future (PENDING o CONFIRMED). Se applicato a un Owner, disattiva d'ufficio e permanentemente la sua spiaggia.
 		\end{enumerate}
+		
+		\begin{enumerate}[leftmargin=*]
+		\item[•] \textbf{Mockup}: si veda Figura 21 - Dashboard di Moderazione Admin 
+		
+		\item[•] \textbf{Testing}: le classi che si occupano dei test sono \texttt{BanServiceTest} nel package \texttt{service}; \texttt{BanTest} nel package \texttt{domain}.
+	\end{enumerate}
 	}
 \end{document}

@@ -151,14 +151,24 @@ L'applicazione è stata sviluppata utilizzando le seguenti tecnologie:
 
 % ================================================================================================ %
 \newpage
+\markboth{2 - Ambiente e tecnologie utilizzate}{2 - Ambiente e tecnologie utilizzate}
 
 \subsection{Intelligenza artificiale}
 A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguistici \textit{Gemini 3} e \textit{Gemini 3.1}. L'impiego di tali strumenti si è concentrato sui seguenti ambiti:
 \begin{itemize}
-	\item \textbf{Architettura progetto}: una volta definiti gli UML alla base del nostro progetto, abbiamo consultato i modelli per un confronto critico sui pattern architetturali (\autoref{cap:Progettazione}) più idonei al nostro contesto applicativo.
-	\item  \textbf{Generazione codice ripetitivo}: al fine di ottimizzare i tempi di sviluppo, l'intelligenza artificiale è stata utilizzata per la generazione di codice strutturale e ripetitivo (es. pattern \textit{Builder}). Ha inoltre fornito spunti per soluzioni alternative in componenti critici, come nel caso del \textit{TransactionManager}. L'utilizzo è sempre stato posto sotto controllo umano al fine di garantire l'integrità del codice e la corretta organizzazione di quest'ultimo.
-	\item \textbf{Testing}: i modelli sono stati impiegati come supporto per la stesura dei casi di test e per una verifica finale sulla copertura e completezza della suite di testing, assicurando una maggiore robustezza al software prodotto.
+	\item \textbf{Architettura progetto}: una volta definiti gli UML alla base del progetto, i modelli sono stati consultati per un confronto critico sull'implementazione rigorosa dell'Architettura Esagonale. L'IA ha supportato anche l'applicazione del pattern CQRS (\textit{Command Query Responsibility Segregation}) per ottimizzare e separare le operazioni di lettura da quelle di scrittura nel lato interfacce/database.
+	
+	\item \textbf{Generazione codice ripetitivo e strutturale}: al fine di ottimizzare i tempi di sviluppo, l'intelligenza artificiale è stata utilizzata per la generazione di codice strutturale e ripetitivo (es. pattern \textit{Builder}). Durante la progettazione delle modalità di orchestrazione tra il lato Java e il lato SQL, evitando dipendenze critiche da specifiche librerie, Gemini ha suggerito l'utilizzo di un \textit{TransactionManager}, astraendo il processo di gestione delle transazioni SQL indipendentemente dalle librerie o dal database utilizzato con una semplice chiamata ad una funzione Lambda. L'output generato è stato costantemente sottoposto a revisione umana al fine di garantirne correttezza, integrità e coerenza architetturale.
+	
+	\item \textbf{Testing}: i modelli sono stati impiegati come supporto per la stesura dei casi di test e per una verifica finale sulla copertura e completezza della suite di testing, fornendo linee guida su cosa testare e quali classi includere nei test. Ciò ha consentito di ottenere una copertura metodica dei percorsi sia di successo (\textit{Happy Paths}), sia di fallimento (\textit{Sad Paths}).
+	
+	\item \textbf{Modellazione UML e Diagrammi Architetturali:} a supporto umano, l'IA ha aiutato nella modellazione dei diagrammi UML richiamando le convenzioni formali necessarie per rappresentare correttamente l'Architettura Esagonale, chiarendo l'utilizzo appropriato delle tipologie di frecce (Realizzazioni, Associazioni dirette, Dipendenze...) e guidando l'applicazione degli stereotipi standard (\textit{<<in-port>>}, \textit{<<out-port>>}, \textit{<<service>>}, \textit{<<aggregate root>>}).
+	
+	\item \textbf{Prototipazione UI:} per la generazione dei mockup dell'interfaccia, l'IA ha analizzato i limiti dei generatori di immagini tradizionali (che tendono ad "allucinare" i testi) suggerendo l'adozione di piattaforme generative specializzate nella produzione di codice frontend, nello specifico \textit{v0.dev} e \textit{bolt.new}. Il modello linguistico ha inoltre aiutato nella stesura dei prompt da passare alle piattaforme, assicurandone la coerenza con gli Use Case e le Business Rules del progetto.
 \end{itemize}
+
+% ================================================================================================ %
+\newpage
 
 \section{Use Cases}
 
@@ -179,14 +189,43 @@ Il programma coinvolge tre attori principali: \textbf{Customer}, \textbf{Owner} 
 Il programma si pone l'obiettivo di implementare un'applicazione a scopi commerciali; di conseguenza l'azione di eliminare prenotazioni, spiagge, utenti ed altre informazioni di natura fiscale risulterebbe un comportamento superficiale da parte dei programmatori. Per questo motivo, il sistema non prevede l'eliminazione fisica di record sensibili, ma utilizza un meccanismo di disattivazione logica.
 
 Di seguito (\autoref{fig:UseCases}) è riportato il \textbf{diagramma degli Use Cases} del progetto, nelle sezioni successive verranno analizzati nel dettaglio i flussi più rilevanti.
+Ad ogni tabella Use Case, è stata aggiunta una sezione \textbf{"Business Rules e Riferimenti"}, contenente le regole di Business associate e riferimenti a (eventuali) Mockups e Test correlati.
+
 Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://github.com/narcisDanielN/gestione_stabilimento_balneare/blob/main/relazione/img/usecase_tables.pdf}{il seguente PDF}.
-\begin{figure}[H] 
-    \centering
-    \makebox[\textwidth][c]{
-        \includegraphics[width=1.15\textwidth]{DiagrammaUseCases.pdf} 
-    }
-    \caption{Diagramma degli Use Cases}
-    \label{fig:UseCases}
+
+\begin{figure}[H]
+	\centering
+	
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Diagramma Use Cases-user.pdf} 
+		\caption{Diagramma \texttt{User}}
+		\label{fig:UseCase_user}
+	\end{subfigure}\hfill
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Diagramma Use Cases-customer.pdf}
+		\caption{Diagramma \texttt{Customer}}
+		\label{fig:UseCase_customer}
+	\end{subfigure}
+	
+	\vspace{0.8cm}
+
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Diagramma Use Cases-owner.pdf}
+		\caption{Diagramma \texttt{Owner}}
+		\label{fig:UseCase_owner}
+	\end{subfigure}\hfill
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Diagramma Use Cases-admin.pdf}
+		\caption{Diagramma \texttt{Admin}}
+		\label{fig:UseCase_admin}
+	\end{subfigure}
+	
+	\caption{Diagramma degli Use Cases}
+	\label{fig:UseCases}
 \end{figure}
 
 % ================================================================================================ %
@@ -205,7 +244,7 @@ Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://gi
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
-        \includegraphics[width=0.85\textwidth]{UC05/UC05.pdf}
+        \includegraphics[width=0.95\textwidth]{UC05/UC05.pdf}
     }
     \caption{UC: Create Booking}
     \label{fig:UC05}
@@ -216,7 +255,7 @@ Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://gi
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
-        \includegraphics[width=0.85\textwidth]{UC07/UC07.pdf}
+        \includegraphics[width=0.95\textwidth]{UC07/UC07.pdf}
     }
     \caption{UC: Manage Reviews}
     \label{fig:UC07}
@@ -227,7 +266,7 @@ Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://gi
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
-        \includegraphics[width=0.85\textwidth]{UC10/UC10.pdf}
+        \includegraphics[width=0.95\textwidth]{UC10/UC10.pdf}
     }
     \caption{UC: Create Beach}
     \label{fig:UC10}
@@ -238,7 +277,7 @@ Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://gi
 \begin{figure}[H]
     \centering
     \makebox[\textwidth][c]{
-        \includegraphics[width=0.85\textwidth]{UC11/UC11.pdf}
+        \includegraphics[width=0.95\textwidth]{UC11/UC11.pdf}
     }
     \caption{UC: Manage Beach}
     \label{fig:UC11}
@@ -314,7 +353,7 @@ public class BookingService implements BookingUseCase {
 \subsubsection{DDD-lite (Domain-Driven Design)}
 Per lo sviluppo del dominio è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'architettura esagonale definisce i confini infrastrutturali, il \textbf{DDD} assicura che il nucleo del progetto rifletta fedelmente il linguaggio e le regole della realtà modellata.
 
-Il cuore di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio \textbf{le entità} hanno il compito di \textbf{assicurarsi l'integrità dei dati} sia in fase di modifica che di instanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato (es. \autoref{lst:Entities}).
+Il cuore di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio \textbf{le entità} hanno il compito di \textbf{assicurarsi l'integrità dei dati} sia in fase di modifica che di istanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato (es. \autoref{lst:Entities}).
 
 In questa architettura abbiamo distinto:
 \begin{itemize}
@@ -324,7 +363,8 @@ In questa architettura abbiamo distinto:
 
 Altro elemento fondamentale dell'architettura sono gli \textbf{Aggregate}: unità logiche indivisibili che raggruppano entità strettamente correlate (come \texttt{Zone} e \texttt{Spot}) e i relativi \textbf{Value Objects}. In tale contesto, la \texttt{Beach} agisce come \textit{Aggregate Root}, rappresentando l'unico punto di accesso responsabile di ogni variazione di stato all'interno del gruppo e garante dell'integrità dell'intero aggregato.
 
-Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precisa scelta di pragmatismo architetturale: laddove il DDD rigoroso impone spesso una gestione asincrona degli eventi per disaccoppiare i diversi aggregati, noi abbiamo optato per un'\textbf{orchestrazione sincrona}, così facendo  la logica di coordinamento è affidata agli Application Services, i quali invocano sequenzialmente i metodi di dominio sulle  Aggregate Root interessate. Questo modello permette di coordinare le azioni in maniera atomica all'interno di un unico blocco di consistenza, garantendo la robustezza delle transazioni \textbf{ACID} del database relazionale. In questo modo, l'aggregato viene trattato come un'unità logica solida, semplificando le attività di test e manutenzione e preservando al contempo il totale incapsulamento della logica di business.
+Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precisa scelta di pragmatismo architetturale: laddove il DDD rigoroso impone spesso una gestione asincrona degli eventi per disaccoppiare i diversi aggregati, noi abbiamo optato per un'\textbf{orchestrazione sincrona}, così facendo  la logica di coordinamento è affidata agli Application Services, i quali invocano sequenzialmente i metodi di dominio sulle Aggregate Root interessate. Questo modello permette di coordinare le azioni in maniera atomica all'interno di un'unica transazione \textbf{ACID} sul database relazionale, semplificando notevolmente le attività di test e manutenzione, pur preservando il totale incapsulamento della logica di business.
+
 % ================================================================================================ %
 \newpage
 
@@ -356,7 +396,7 @@ public class Beach {
 Un aspetto centrale nella progettazione è la gestione del ciclo di vita dei \textbf{Value Objects}, improntata alla massima protezione dello stato tramite due principi cardine:
 
 \begin{itemize}
-    \item \textbf{Ricostruzione del Modello}: le entità non vengono semplicemente "lette" dal database, ma \textit{ricostituite}. Lo strato di persistenza fornisce i dati affinché il Core possa istanziare nuovamente l'entità, garantendo che i vincoli vengano verificati nel momento stesso della creazione in memoria.
+    \item \textbf{Ricostruzione del Modello}: le entità non vengono semplicemente lette dal database, ma \textit{ricostituite}. Lo strato di persistenza fornisce i dati affinché il Core possa istanziare nuovamente l'entità, garantendo che i vincoli vengano verificati nel momento stesso della creazione in memoria.
     \item \textbf{Metodi Wither e Immutabilità}: invece di alterare lo stato di un'istanza esistente tramite \textit{setter}, le modifiche generano una \textbf{nuova istanza} dell'oggetto (\autoref{lst:ValueObjects}). Questo garantisce l'\textbf{immutabilità} durante il ciclo di vita in memoria, facilitando il debugging e assicurando la consistenza tra gli strati applicativi.
 \end{itemize}
 
@@ -385,21 +425,34 @@ Il pattern è stato applicato a classi come \textbf{\texttt{Address}}, \textbf{\
  
 \begin{lstlisting}[caption={Implementazione del pattern Builder su un Value Object}, label={lst:Builder}]
 public record BeachInventory(int countExtraSdraio, int countCamerini) {
-
-    public static class Builder {
-        private int countExtraSdraio = 0;
-        private int countCamerini = 0;
-
-        public Builder countExtraSdraio(int val) {
-            this.countExtraSdraio = val;
-            return this; //permette il method chaining
-        }
-
-        public BeachInventory build() {
-            //la validazione avverrà automaticamente nel costruttore del record
-            return new BeachInventory(countExtraSdraio, countCamerini);
-        }
-    }
+	//attributi...
+	
+	//metodo Builder per costruire l'oggetto col pattern Builder
+	public static Builder builder() {
+		return new Builder();
+	}
+		
+	//altri metodi...
+	
+	//pattern Builder per creazione BeachInventory facilitata
+	public static class Builder {
+		private int countExtraSdraio = 0;
+		private int countExtraLettini = 0;
+		private int countExtraSedie = 0;
+		private int countCamerini = 0;
+		
+		public Builder countExtraSdraio(int val) {
+			this.countExtraSdraio = val;
+			return this; //permette il method chaining
+		}
+		        
+		//ogni attributo ha il suo metodo strutturato come sopra
+		
+		public BeachInventory build() {
+			//la validazione avverrà automaticamente nel costruttore del record
+			return new BeachInventory(countExtraSdraio, countCamerini);
+		}
+	}
 }
 \end{lstlisting}
 
@@ -447,7 +500,7 @@ La struttura della directory del progetto è stata organizzata in base alla sepa
 
 La directory dei test rispecchia la struttura principale per \textbf{mantenere gli Unit Test organizzati} (con package paralleli come \texttt{application} e \texttt{domain} e le relative test suite). L'adozione di queste pratiche garantisce un \textbf{progetto chiaro}, strutturato e \textbf{facilmente manutenibile}, evitando al contempo problemi legati alla visibilità dei package.
 
-Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}), i casi d'uso (\texttt{application}) e la gestione dei dati/interazioni con il database (\texttt{infrastructure.persistence.jdbc}). Tale approccio strutturato assicura che ogni componente del sistema abbia \textbf{una responsabilità ben definita}, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
+Ogni package interagisce con gli altri per svolgere compiti specifici, mantenendo una netta separazione tra il dominio applicativo (\texttt{domain}), i casi d'uso (\texttt{application}) e la gestione dei \\ dati/interazioni con il database (\texttt{infrastructure.persistence.jdbc}). Tale approccio strutturato assicura che ogni componente del sistema abbia \textbf{una responsabilità ben definita}, rendendo il codice più facile da navigare, comprendere ed estendere. Inoltre facilita la collaborazione tra i membri del team, poiché ogni package può essere sviluppato e testato in modo indipendente.
 
 % ================================================================================================ %
 \newpage
@@ -771,7 +824,7 @@ Per ottimizzare i tempi di prototipazione e ottenere un design moderno e respons
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth]{mockups/8mockup-moderationMgmt-desktop.jpg}
-	\caption{\textbf{Dashboard di Moderazione Admin (UC-01 \& Reports):} interfaccia desktop riservata agli admins. Mostra la tabella delle segnalazioni evidenziando il comportamento polimorfico del ban implementato nel backend (scelta tra \textit{app ban} globale e \textit{beach ban} selettivo).}
+	\caption{\textbf{Dashboard di Moderazione Admin (UC-18 \& UC-19):} interfaccia desktop riservata agli admins. Mostra la tabella delle segnalazioni evidenziando il comportamento polimorfico del ban implementato nel backend (scelta tra \textit{app ban} globale e \textit{beach ban} selettivo).}
 	\label{fig:mockup8}
 \end{figure}
 

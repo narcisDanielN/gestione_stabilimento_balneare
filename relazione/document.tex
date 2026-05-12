@@ -324,7 +324,7 @@ In questa architettura abbiamo distinto:
 
 Altro elemento fondamentale dell'architettura sono gli \textbf{Aggregate}: unità logiche indivisibili che raggruppano entità strettamente correlate (come \texttt{Zone} e \texttt{Spot}) e i relativi \textbf{Value Objects}. In tale contesto, la \texttt{Beach} agisce come \textit{Aggregate Root}, rappresentando l'unico punto di accesso responsabile di ogni variazione di stato all'interno del gruppo e garante dell'integrità dell'intero aggregato.
 
-Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precisa scelta di pragmatismo architetturale: laddove il DDD rigoroso impone spesso una gestione asincrona degli eventi per disaccoppiare i diversi aggregati, noi abbiamo optato per un'\textbf{orchestrazione sincrona}, così facendo  la logica di coordinamento è affidata agli Application Services, i quali invocano sequenzialmente i metodi di dominio sulle Aggregate Root interessate. Questo modello permette di coordinare le azioni in maniera atomica all'interno di un unico blocco di consistenza, garantendo la robustezza delle transazioni \textbf{ACID} del database relazionale. In questo modo, l'aggregato viene trattato come un'unità logica solida, semplificando le attività di test e manutenzione e preservando al contempo il totale incapsulamento della logica di business.
+Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precisa scelta di pragmatismo architetturale: laddove il DDD rigoroso impone spesso una gestione asincrona degli eventi per disaccoppiare i diversi aggregati, noi abbiamo optato per un'\textbf{orchestrazione sincrona}, così facendo  la logica di coordinamento è affidata agli Application Services, i quali invocano sequenzialmente i metodi di dominio sulle  Aggregate Root interessate. Questo modello permette di coordinare le azioni in maniera atomica all'interno di un unico blocco di consistenza, garantendo la robustezza delle transazioni \textbf{ACID} del database relazionale. In questo modo, l'aggregato viene trattato come un'unità logica solida, semplificando le attività di test e manutenzione e preservando al contempo il totale incapsulamento della logica di business.
 % ================================================================================================ %
 \newpage
 
@@ -384,18 +384,21 @@ Il pattern \textbf{Builder} è stato utilizzato per gestire l'instanziamento di 
 Il pattern è stato applicato a classi come \textbf{\texttt{Address}}, \textbf{\texttt{Spot}}, \textbf{\texttt{Zone}} e ai \textit{value objects} associati a \textbf{\texttt{Booking}} e \textbf{\texttt{Beach}}. In particolare, nel caso della spiaggia, vista la densità di informazioni richieste, abbiamo suddiviso gli attributi in diversi \textit{value objects}, ciascuno dei quali viene istanziato tramite il proprio builder. Questo permette di gestire con estrema facilità la configurazione di parametri non obbligatori, mantenendo il codice pulito e uniforme in tutto il progetto.
  
 \begin{lstlisting}[caption={Implementazione del pattern Builder su un Value Object}, label={lst:Builder}]
-public static class Builder {
-    private int countExtraSdraio = 0;
-    private int countCamerini = 0;
+public record BeachInventory(int countExtraSdraio, int countCamerini) {
 
-    public Builder countExtraSdraio(int val) {
-        this.countExtraSdraio = val;
-        return this; //permette il method chaining
-    }
+    public static class Builder {
+        private int countExtraSdraio = 0;
+        private int countCamerini = 0;
 
-    public BeachInventory build() {
-        //la validazione avverrà automaticamente nel costruttore del record
-        return new BeachInventory(countExtraSdraio, countCamerini);
+        public Builder countExtraSdraio(int val) {
+            this.countExtraSdraio = val;
+            return this; //permette il method chaining
+        }
+
+        public BeachInventory build() {
+            //la validazione avverrà automaticamente nel costruttore del record
+            return new BeachInventory(countExtraSdraio, countCamerini);
+        }
     }
 }
 \end{lstlisting}

@@ -314,9 +314,6 @@ public class BookingService implements BookingUseCase {
 \subsubsection{DDD-lite (Domain-Driven Design)}
 Per lo sviluppo del dominio è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'architettura esagonale definisce i confini infrastrutturali, il \textbf{DDD} assicura che il nucleo del progetto rifletta fedelmente il linguaggio e le regole della realtà modellata.
 
-Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una scelta di pragmatismo architetturale: laddove il DDD rigoroso impone una gestione asincrona degli eventi per disaccoppiare gli aggregati, noi abbiamo optato per una \textbf{orchestrazione sincrona}. In questo sistema, gli \textbf{Aggregate} (come la classe \texttt{Beach}) fungono da garanti dell'integrità, coordinando le azioni correlate in maniera atomica all'interno del blocco di consistenza. Questa scelta permette di mantenere la robustezza delle transazioni \textbf{ACID} del database relazionale, evitando la complessità dei sistemi a consistenza eventuale non necessaria per il nostro ambito applicativo. In questo modello, l'aggregato viene trattato come un'unità logica indivisibile, rendendo il sistema più semplice da testare e manutenere pur preservando l'incapsulamento della logica di business.
-
-
 Il cuore di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio \textbf{le entità} hanno il compito di \textbf{assicurarsi l'integrità dei dati} sia in fase di modifica che di instanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato (es. \autoref{lst:Entities}).
 
 In questa architettura abbiamo distinto:
@@ -325,6 +322,9 @@ In questa architettura abbiamo distinto:
     \item \textbf{Value Objects}: oggetti definiti dai propri attributi e immutabili, implementati tramite i \textbf{Java Records} (es. \autoref{lst:ValueObjects}).
 \end{itemize}
 
+Altro elemento fondamentale dell'architettura sono gli \textbf{Aggregate}: unità logiche indivisibili che raggruppano entità strettamente correlate (come \texttt{Zone} e \texttt{Spot}) e i relativi \textbf{Value Objects}. In tale contesto, la \texttt{Beach} agisce come \textit{Aggregate Root}, rappresentando l'unico punto di accesso responsabile di ogni variazione di stato all'interno del gruppo e garante dell'integrità dell'intero aggregato.
+
+Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precisa scelta di pragmatismo architetturale: laddove il DDD rigoroso impone spesso una gestione asincrona degli eventi per disaccoppiare i diversi aggregati, noi abbiamo optato per un'\textbf{orchestrazione sincrona}, così facendo  la logica di coordinamento è affidata agli Application Services, i quali invocano sequenzialmente i metodi di dominio sulle Aggregate Root interessate. Questo modello permette di coordinare le azioni in maniera atomica all'interno di un unico blocco di consistenza, garantendo la robustezza delle transazioni \textbf{ACID} del database relazionale. In questo modo, l'aggregato viene trattato come un'unità logica solida, semplificando le attività di test e manutenzione e preservando al contempo il totale incapsulamento della logica di business.
 % ================================================================================================ %
 \newpage
 

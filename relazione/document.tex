@@ -156,15 +156,14 @@ L'applicazione è stata sviluppata utilizzando le seguenti tecnologie:
 \subsection{Intelligenza artificiale}
 A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguistici \textit{Gemini 3} e \textit{Gemini 3.1}. L'impiego di tali strumenti si è concentrato sui seguenti ambiti:
 \begin{itemize}
-	\item \textbf{Architettura progetto}: una volta definiti gli UML alla base del progetto, i modelli sono stati consultati per un confronto critico sull'implementazione rigorosa dell'Architettura Esagonale. L'IA ha supportato anche l'applicazione del pattern CQRS (\textit{Command Query Responsibility Segregation}) per ottimizzare e separare le operazioni di lettura da quelle di scrittura nel lato interfacce/database.
+	\item \textbf{Architettura progetto}: dopo una prima stesura del diagramma UML,  sono stati consultati i modelli di intelligenza artificiale citati al fine di cercare di determinare un'archietettura implementativa adatta al  progetto. Questo ha, alla fine, portato alla scelta e all'adozione dell'archietettura Esagonale. Durante lo sviluppo del progetto, il consulto con tali modelli ha portato anche al suggerimento dell'introduzione di ulteriori pattern per la realizzazione  del progetto come il CQRS. (\textit{Command Query Responsibility Segregation}) per ottimizzare e separare le operazioni di lettura da quelle di scrittura nel lato interfacce/database.
+ 
 	
-	\item \textbf{Generazione codice ripetitivo e strutturale}: al fine di ottimizzare i tempi di sviluppo, l'intelligenza artificiale è stata utilizzata per la generazione di codice strutturale e ripetitivo (es. pattern \textit{Builder}). Durante la progettazione delle modalità di orchestrazione tra il lato Java e il lato SQL, evitando dipendenze critiche da specifiche librerie, Gemini ha suggerito l'utilizzo di un \textit{TransactionManager}, astraendo il processo di gestione delle transazioni SQL indipendentemente dalle librerie o dal database utilizzato con una semplice chiamata ad una funzione Lambda. L'output generato è stato costantemente sottoposto a revisione umana al fine di garantirne correttezza, integrità e coerenza architetturale.
+	\item \textbf{Generazione codice ripetitivo e strutturale}: al fine di ottimizzare i tempi di sviluppo, l'intelligenza artificiale è stata utilizzata per la generazione di codice strutturale e ripetitivo (es. pattern \textit{Builder}). Durante la progettazione delle modalità di orchestrazione tra il lato Java e il lato SQL, Gemini ha suggerito l'utilizzo di un \textit{TransactionManager} al fine di evitare dipendenze critiche da specifiche librerie e astraendo il processo di gestione delle transazioni SQL indipendentemente dalle librerie o dal database utilizzato con una semplice chiamata ad una funzione Lambda. L'output generato è stato costantemente sottoposto a revisione umana al fine di garantirne correttezza, integrità e coerenza architetturale.
 	
-	\item \textbf{Testing}: i modelli sono stati impiegati come supporto per la stesura dei casi di test e per una verifica finale sulla copertura e completezza della suite di testing, fornendo linee guida su cosa testare e quali classi includere nei test. Ciò ha consentito di ottenere una copertura metodica dei percorsi sia di successo (\textit{Happy Paths}), sia di fallimento (\textit{Sad Paths}).
+	\item \textbf{Testing}: i modelli sono stati impiegati come supporto per la stesura dei casi di test e per una verifica finale sulla copertura e completezza della suite di testing, fornendo linee guida su cosa testare e quali classi includere nei test. Ciò ha consentito di ottenere una copertura metodica dei percorsi sia di successo (\textit{Happy Paths}) che di fallimento (\textit{Sad Paths}).
 	
-	\item \textbf{Modellazione UML e Diagrammi Architetturali:} a supporto umano, l'IA ha aiutato nella modellazione dei diagrammi UML richiamando le convenzioni formali necessarie per rappresentare correttamente l'Architettura Esagonale, chiarendo l'utilizzo appropriato delle tipologie di frecce (Realizzazioni, Associazioni dirette, Dipendenze...) e guidando l'applicazione degli stereotipi standard (\textit{<<in-port>>}, \textit{<<out-port>>}, \textit{<<service>>}, \textit{<<aggregate root>>}).
-	
-	\item \textbf{Prototipazione UI:} per la generazione dei mockup dell'interfaccia, l'IA ha analizzato i limiti dei generatori di immagini tradizionali (che tendono ad "allucinare" i testi) suggerendo l'adozione di piattaforme generative specializzate nella produzione di codice frontend, nello specifico \textit{v0.dev} e \textit{bolt.new}. Il modello linguistico ha inoltre aiutato nella stesura dei prompt da passare alle piattaforme, assicurandone la coerenza con gli Use Case e le Business Rules del progetto.
+	\item \textbf{Prototipazione UI:} per la generazione dei mockup dell'interfaccia, l'IA ha analizzato i limiti dei generatori di immagini tradizionali (che tendono ad avere un resa grafica non soddisfacente) suggerendo l'adozione di piattaforme generative specializzate nella produzione di codice frontend; nello specifico \textit{v0.dev} e \textit{bolt.new}. Il modello linguistico ha inoltre aiutato nella stesura dei prompt da passare alle piattaforme assicurandone la coerenza con gli Use Case e le Business Rules del progetto.
 \end{itemize}
 
 % ================================================================================================ %
@@ -587,7 +586,6 @@ Nel progetto, le \textbf{Port-Out} sono interfacce Java che \textbf{definiscono 
 	\caption{Struttura delle Port-Out}
 	\label{fig:PortOut}
 \end{figure}
- il pattern \textbf{Unit of Work} 
 
 Il \textbf{TransactionManager} è l'interfaccia dedicata alla gestione del ciclo di vita delle transazioni, assicurando che il flusso di operazioni sul database rispetti le proprietà \textbf{ACID} (Atomicità, Consistenza, Isolamento e Durata). Il componente implementa il pattern \textbf{Unit of Work} che ha l'obbiettivo di mantenere una lista di oggetti influenzati da una transazione e coordinare la scrittura delle modifiche.
 
@@ -596,7 +594,6 @@ Per l'implentazione di \textbf{TransactionManager} abbiamo scelto di adottare le
 Quest'ultimo, è definito tramite un'interfaccia marker e assegnato all'interno dei metodi \textit{executeInTransaction} della classe \textit{jdbcTransactionManager} la quale implementa  l'interfaccia \textbf{TransactionManager}. L'oggetto  viene condiviso esplicitamente come parametro a ogni metodo delle repository coinvolto nel caso d'uso (es. \texttt{beachRepository.update(beach, context)}). Tale meccanismo garantisce che \textbf{tutte le operazioni} effettuate all'interno di un blocco transazionale \textbf{siano atomiche}: in caso di successo di ogni passaggio, il manager esegue il \textit{commit} dei dati sul database; qualora venisse sollevata un'eccezione (es. un errore di sicurezza o validazione), il manager interviene eseguendo un \textit{rollback} automatico per preservare l'integrità e la consistenza dello stato persistente.
 
 % ================================================================================================ %
-\newpage
 
 \subsubsection{Port-In}
 

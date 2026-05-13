@@ -6,7 +6,8 @@
 \contentsline {subsection}{\numberline {2.2}Database e Persistenza}{1}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Librerie e Containerizzazione}{1}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}Testing e Analisi}{1}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Intelligenza artificiale}{2}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.5}Strumenti di creazione diagrammi}{1}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Intelligenza artificiale}{2}{subsection.2.6}%
 \contentsline {section}{\numberline {3}Use Cases}{3}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Utenti del sistema}{3}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}Descrizione Use Cases}{4}{subsection.3.2}%

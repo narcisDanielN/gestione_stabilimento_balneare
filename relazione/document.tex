@@ -587,15 +587,19 @@ Nel progetto, le \textbf{Port-Out} sono interfacce Java che \textbf{definiscono 
 	\caption{Struttura delle Port-Out}
 	\label{fig:PortOut}
 \end{figure}
+ il pattern \textbf{Unit of Work} 
 
-Il \textbf{TransactionManager} è l'interfaccia dedicata alla gestione del ciclo di vita delle transazioni, assicurando che il flusso di operazioni sul database rispetti le proprietà \textbf{ACID} (Atomicità, Consistenza, Isolamento e Durata). Il componente implementa il pattern \textbf{Unit of Work} attraverso l'uso di un oggetto \textbf{TransactionContext}. 
+Il \textbf{TransactionManager} è l'interfaccia dedicata alla gestione del ciclo di vita delle transazioni, assicurando che il flusso di operazioni sul database rispetti le proprietà \textbf{ACID} (Atomicità, Consistenza, Isolamento e Durata). Il componente implementa il pattern \textbf{Unit of Work} che ha l'obbiettivo di mantenere una lista di oggetti influenzati da una transazione e coordinare la scrittura delle modifiche.
 
-Questo contesto, definito tramite un'interfaccia marker, viene condiviso esplicitamente come parametro a ogni metodo delle repository coinvolto nel caso d'uso (es. \texttt{beachRepository.update(beach, context)}). Tale meccanismo garantisce che \textbf{tutte le operazioni} effettuate all'interno di un blocco transazionale \textbf{siano atomiche}: in caso di successo di ogni passaggio, il manager esegue il \textit{commit} dei dati sul database; qualora venisse sollevata un'eccezione (es. un errore di sicurezza o validazione), il manager interviene eseguendo un \textit{rollback} automatico per preservare l'integrità e la consistenza dello stato persistente.
+Per l'implentazione di \textbf{TransactionManager} abbiamo scelto di adottare le \textit{funzioni Lambda} in combinazione con l'utilizzo di un oggetto \textbf{TransactionContext}. 
+
+Quest'ultimo, è definito tramite un'interfaccia marker e assegnato all'interno dei metodi \textit{executeInTransaction} della classe \textit{jdbcTransactionManager} la quale implementa  l'interfaccia \textbf{TransactionManager}. L'oggetto  viene condiviso esplicitamente come parametro a ogni metodo delle repository coinvolto nel caso d'uso (es. \texttt{beachRepository.update(beach, context)}). Tale meccanismo garantisce che \textbf{tutte le operazioni} effettuate all'interno di un blocco transazionale \textbf{siano atomiche}: in caso di successo di ogni passaggio, il manager esegue il \textit{commit} dei dati sul database; qualora venisse sollevata un'eccezione (es. un errore di sicurezza o validazione), il manager interviene eseguendo un \textit{rollback} automatico per preservare l'integrità e la consistenza dello stato persistente.
 
 % ================================================================================================ %
 \newpage
 
 \subsubsection{Port-In}
+
 Le \textbf{Port-In} (o \textit{Driving Ports}) rappresentano i punti di ingresso all'esagono applicativo. Esse definiscono formalmente i casi d'uso e le azioni che gli attori esterni (come l'interfaccia utente o sistemi di test) possono richiedere al sistema. 
 
 In questa architettura, le port-in sono strutturate attraverso due componenti principali:

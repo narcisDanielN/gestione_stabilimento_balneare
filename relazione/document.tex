@@ -870,7 +870,7 @@ La strategia di testing adottata per il sistema punta a una rigorosa \textbf{val
 Nello specifico, il testing è stato diviso in due macro-aree:
 
 \begin{itemize}
-	\item \textbf{Domain Layer (Test Puri):} i test sulle entità di dominio (es. \texttt{Beach}, \texttt{Booking}) e sui Value Object verificando il rispetto dei vincoli architetturali (invarianti). Garantiscono che gli oggetti non possano mai essere istanziati in stati inconsistenti (es. coordinate negative, date sovrapposte) e validano la corretta implementazione della macchina a stati (es. transizioni da \texttt{PENDING} a \texttt{CONFIRMED}) senza alcuna dipendenza esterna.
+	\item \textbf{Domain Layer (Test Puri):} i test sulle entità di dominio (es. \texttt{Beach}, \texttt{Booking}) e sui Value Object verificano il rispetto dei vincoli architetturali (invarianti). Garantiscono che gli oggetti non possano mai essere istanziati in stati inconsistenti (es. coordinate negative, date sovrapposte) e validano la corretta implementazione della macchina a stati (es. transizioni da \texttt{PENDING} a \texttt{CONFIRMED}) senza alcuna dipendenza esterna.
 	
 	\item \textbf{Application Layer (Test con Mock):} i test sui \texttt{service} verificano la corretta orchestrazione dei casi d'uso. Utilizzando la libreria \textbf{Mockito}, le porte di uscita e il \texttt{TransactionManager} sono stati simulati (\textit{mockati}). Questo ha permesso di testare analiticamente i percorsi di successo (\textit{Happy Paths}) e le barriere di sicurezza (\textit{Sad Paths}), come il blocco di operazioni non autorizzate, i conflitti di capienza (inventario/parcheggi) e le logiche di rollback, garantendo il pieno rispetto dei requisiti utente.
 \end{itemize}

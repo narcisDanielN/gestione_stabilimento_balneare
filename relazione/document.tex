@@ -183,7 +183,7 @@ Il progetto è stato sviluppato utilizzando le seguenti tecnologie:
 \subsection{Intelligenza artificiale}
 A supporto dello sviluppo del progetto sono stati utilizzati i modelli linguistici \textit{Gemini 3} e \textit{Gemini 3.1} di \textit{Google}. L'impiego di tali strumenti si è concentrato sui seguenti ambiti:
 \begin{itemize}
-	\item \textbf{Architettura progetto}: dopo una prima stesura del diagramma UML, sono stati consultati i modelli di intelligenza artificiale citati al fine di cercare di determinare un'architettura implementativa adatta al progetto. Questo ha, alla fine, portato alla \textbf{scelta} e all'adozione \textbf{dell'Architettura Esagonale}. Durante lo sviluppo del progetto, il consulto con tali modelli ha portato anche al suggerimento dell'introduzione di ulteriori pattern per la realizzazione del progetto come il \textbf{CQRS} (\textit{Command Query Responsibility Segregation} -- permettendo di ottimizzare e separare le operazioni di lettura da quelle di scrittura nel lato interfacce/database).
+	\item \textbf{Architettura progetto}: dopo una prima stesura del diagramma UML, sono stati consultati i modelli di intelligenza artificiale citati al fine di cercare di determinare un'architettura implementativa adatta al progetto. Questo ha, alla fine, portato alla \textbf{scelta} e all'adozione \textbf{dell'Architettura Esagonale}. Durante lo sviluppo del progetto, il consulto con tali modelli ha portato anche al suggerimento dell'introduzione di ulteriori pattern come il \textbf{CQRS} (\textit{Command Query Responsibility Segregation} -- permettendo di ottimizzare e separare le operazioni di lettura da quelle di scrittura nel lato interfacce/database).
  
 	
 	\item \textbf{Generazione codice ripetitivo e strutturale}: al fine di ottimizzare i tempi di sviluppo, l'intelligenza artificiale è stata utilizzata per la generazione di codice strutturale e ripetitivo (es. pattern \textit{Builder}). Durante la progettazione delle modalità di orchestrazione tra il lato Java e il lato SQL, Gemini ha suggerito l'utilizzo del \textbf{\texttt{TransactionManager}} al fine di evitare dipendenze critiche da specifiche librerie e astraendo il processo di gestione delle transazioni SQL indipendentemente dalle librerie o dal database utilizzato con una semplice chiamata ad una funzione Lambda. L'output generato è stato costantemente \textbf{sottoposto a revisione umana} al fine di garantirne correttezza, integrità e coerenza architetturale.
@@ -217,7 +217,7 @@ Il programma coinvolge tre attori principali: \textbf{Customer}, \textbf{Owner} 
 Il programma si pone l'obiettivo di implementare un'applicazione a scopi commerciali. Di conseguenza l'azione di eliminare prenotazioni, spiagge, utenti ed altre informazioni di natura fiscale risulterebbe un comportamento superficiale da parte dei programmatori. Per questo motivo, il sistema non prevede l'eliminazione fisica di record sensibili, ma utilizza un meccanismo di disattivazione logica.
 
 Di seguito (\autoref{fig:UseCases}) è riportato il \textbf{diagramma degli Use Cases} del progetto, nelle sezioni successive verranno analizzati nel dettaglio i flussi più rilevanti.
-Ad ogni tabella Use Case, è stata aggiunta una sezione \textbf{"Business Rules e Riferimenti"}, contenente le regole di Business associate e riferimenti a (eventuali) Mockups e Test correlati.
+Ad ogni tabella Use Case, è stata aggiunta una sezione \textbf{"Business Rules e Riferimenti"}, contenente le regole di Business associate e i riferimenti a (eventuali) Mockups e Test correlati.
 
 Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://github.com/narcisDanielN/gestione_stabilimento_balneare/blob/main/relazione/img/usecase_tables.pdf}{il seguente PDF}.
 
@@ -535,7 +535,7 @@ Ogni package interagisce con gli altri per svolgere compiti specifici, mantenend
 \newpage
 
 \subsection{Domain}
-Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le \textbf{regole di business} e la \textbf{modellazione dello stato}. In conformità ai principi del pattern \textbf{DDD-lite}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
+Il livello di \textbf{Domain} rappresenta il nucleo fondante dell'applicazione, in cui risiedono le \textbf{regole di business} e la \textbf{modellazione dello stato}. In conformità ai principi dei pattern \textbf{DDD-lite} e \textbf{Rich Domain Model}, le classi non sono meri contenitori di dati, ma garantiscono autonomamente l'integrità del sistema.
 La struttura gerarchica e relazionale delle entità è sintetizzata nel diagramma UML riportato in \autoref{fig:domain_UML}.
 Per il diagramma completo, con metodi e attributi di ciascuna classe, si veda \href{https://github.com/narcisDanielN/gestione_stabilimento_balneare/blob/main/relazione/img/domainUML.pdf}{il seguente PDF}.
 
@@ -870,7 +870,7 @@ La strategia di testing adottata per il sistema punta a una rigorosa \textbf{val
 Nello specifico, il testing è stato diviso in due macro-aree:
 
 \begin{itemize}
-	\item \textbf{Domain Layer (Test Puri):} i test sulle entità di dominio (es. \texttt{Beach}, \texttt{Booking}) e sui Value Object verificano il rispetto dei vincoli architetturali (invarianti). Garantiscono che gli oggetti non possano mai essere istanziati in stati inconsistenti (es. coordinate negative, date sovrapposte) e validano la corretta implementazione della macchina a stati (es. transizioni da \texttt{PENDING} a \texttt{CONFIRMED}) senza alcuna dipendenza esterna.
+	\item \textbf{Domain Layer (Test Puri):} i test sulle entità di dominio (es. \texttt{Beach}, \texttt{Booking}) e sui Value Object verificando il rispetto dei vincoli architetturali (invarianti). Garantiscono che gli oggetti non possano mai essere istanziati in stati inconsistenti (es. coordinate negative, date sovrapposte) e validano la corretta implementazione della macchina a stati (es. transizioni da \texttt{PENDING} a \texttt{CONFIRMED}) senza alcuna dipendenza esterna.
 	
 	\item \textbf{Application Layer (Test con Mock):} i test sui \texttt{service} verificano la corretta orchestrazione dei casi d'uso. Utilizzando la libreria \textbf{Mockito}, le porte di uscita e il \texttt{TransactionManager} sono stati simulati (\textit{mockati}). Questo ha permesso di testare analiticamente i percorsi di successo (\textit{Happy Paths}) e le barriere di sicurezza (\textit{Sad Paths}), come il blocco di operazioni non autorizzate, i conflitti di capienza (inventario/parcheggi) e le logiche di rollback, garantendo il pieno rispetto dei requisiti utente.
 \end{itemize}

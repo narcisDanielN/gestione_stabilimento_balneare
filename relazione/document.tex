@@ -323,126 +323,251 @@ Per visualizzare tutti gli Use Cases nel dettaglio, si consulti \href{https://gi
 Per lo sviluppo di SunSpot sono stati adottati diversi pattern volti a garantire un'architettura robusta, testabile e facilmente manutenibile, separando nettamente le responsabilità tra logica di business e dettagli implementativi.
 
 \subsubsection{Architettura Esagonale (Ports \& Adapters)}
-Il progetto SunSpot adotta i \textbf{principi dell'Architettura Esagonale} per garantire una separazione delle responsabilità e un totale isolamento della logica di business dalle tecnologie esterne. L'architettura prevede un nucleo centrale (\textbf{core}), composto dai package \textbf{\texttt{domain}} e \textbf{\texttt{application}}, e un perimetro esterno, composto dagli \textbf{adapters} nel package \textbf{\texttt{infrastructure.persistence.jdbc}}.
+Il progetto SunSpot adotta i principi dell'\textbf{Architettura Esagonale} (o \textit{Ports and Adapters}, originariamente proposta da Alistair Cockburn). L'intento fondante di questa architettura è permettere all'applicazione di essere sviluppata, testata e guidata indifferentemente da utenti, programmi o script automatizzati in totale isolamento dalle tecnologie esterne (\autoref{fig:hex}).
 
-Lo strato di \textbf{\texttt{application}} funge da ponte tra il mondo esterno e il dominio ed è suddiviso in due componenti fondamentali:
+Seguendo il principio della \textit{Dependency Rule} (in linea con i concetti della Clean Architecture), le dipendenze del codice sorgente puntano rigorosamente verso l'interno. Il sistema è diviso in due macro-aree:
 \begin{itemize}
-    \item \textbf{Ports (interfacce)}: rappresentano i contratti di comunicazione dell'esagono. Si distinguono in:
-    \begin{itemize}
-        \item \textbf{Port-In (driving ports)}: definiscono i casi d'uso e le azioni che gli attori esterni possono richiedere al sistema (es. \autoref{lst:UseCase}).
-        \item \textbf{Port-Out (driven ports)}: definiscono i requisiti infrastrutturali necessari al \textbf{core} per funzionare (es. \autoref{lst:Repository}).
-    \end{itemize}
-    
-    \item \textbf{Services (orchestratori)}: rappresentano le implementazioni concrete delle port-in. Il loro ruolo è quello di \textbf{orchestratori dei casi d'uso}: un service riceve un comando, recupera i dati necessari tramite le port-in, delega la logica decisionale e di validazione alle entità del \texttt{domain} e infine persiste i cambiamenti tramite le port-out. I services non contengono logica di business, ma si occupano esclusivamente di coordinare il flusso operativo e gestire l'integrità delle transazioni (es. \autoref{lst:Service}).
+	\item \textbf{Il Core (Inside Part):} composto dai package \textbf{\texttt{domain}} e \textbf{\texttt{application}}, rappresenta il nucleo dell'applicazione. Contiene la logica di business pura ed è "beatamente ignorante" (\textit{blissfully ignorant}) della natura dei dispositivi esterni e delle tecnologie di persistenza utilizzate;
+	\item \textbf{L'Infrastruttura (Outside Part):} composto dagli \textbf{adattatori} nel package \\ \textbf{\texttt{infrastructure.persistence.jdbc}}, contiene le implementazioni concrete che traducono le richieste del Core in operazioni specifiche della tecnologia scelta (es. query SQL tramite JDBC per interagire con il database MySQL). Comunica con il Core esclusivamente tramite l'implementazione delle interfacce (Port-Out) definite nel layer \texttt{application}.
 \end{itemize}
 
-Grazie a questa struttura, il sistema gode di una notevole resilienza; l'utilizzo delle interfacce assicura che il \textbf{disaccoppiamento} sia \textbf{totale}. Se in futuro fosse necessario migrare verso un diverso sistema di persistenza o un servizio cloud, sarebbe sufficiente \textbf{sviluppare un nuovo adapter} senza dover modificare il codice nel core applicativo.
+Lo strato \textbf{\texttt{application}} funge da ponte tra il mondo esterno e il dominio ed è suddiviso in due componenti fondamentali:
+\begin{itemize}
+	\item \textbf{Ports (interfacce)}: rappresentano i contratti di comunicazione dell'esagono. Si distinguono in:
+	\begin{itemize}
+		\item \textbf{Port-In (driving ports)}: definiscono i casi d'uso e le azioni che gli attori esterni possono richiedere al sistema (es. \autoref{lst:UseCase}).
+		\item \textbf{Port-Out (driven ports)}: definiscono i requisiti infrastrutturali necessari al Core per funzionare, come l'accesso ai dati (es. \autoref{lst:Repository}).
+	\end{itemize}
+	
+	\item \textbf{Services (orchestratori)}: implementano le Port-In. Il loro ruolo è quello di \textbf{orchestratori dei casi d'uso}: un service riceve un comando, recupera i dati necessari tramite le Port-Out, delega la logica decisionale alle entità del \texttt{domain} e infine persiste i cambiamenti. I Services contengono principalmente logica di coordinamento, delegando la maggior parte delle decisioni di business alle entità del domain, pur mantenendo alcune validazioni orchestrative necessarie al flusso applicativo (es. \autoref{lst:Service}).
+\end{itemize}
+
+% ================================================================================================ %
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{img/hexagonal_diagram} 
+	\caption{Schema dell'architettura esagonale con esempi di classi del progetto: le Port-In, come \texttt{CreateBeachUseCase}, vengono implementate dai servizi applicativi, come \texttt{CreateBeachService}; questi orchestrano le entità di dominio, come \texttt{Beach}, e accedono alla persistenza tramite Port-Out, come \texttt{BeachRepository}, implementate dagli adapter JDBC.}
+	\label{fig:hex}
+\end{figure}
 
 \begin{lstlisting}[caption={Esempio Port-In (Contratto dei casi d'uso)}, label={lst:UseCase}]
-public interface BookingUseCase {
-    void confirmBooking(Integer id);
-    void cancelBooking(Integer id);
-    
-    //... altri metodi omessi ...
-    List<Booking> getCustomerBookings(Integer customerId);
-}
+	public interface BookingUseCase {
+		void confirmBooking(Integer id);
+		void cancelBooking(Integer id);
+		
+		//... altri metodi omessi ...
+		List<Booking> getCustomerBookings(Integer customerId);
+	}
 \end{lstlisting}
 
 \begin{lstlisting}[caption={Esempio Port-Out (Requisiti verso il Database)}, label={lst:Repository}]
-public interface BookingRepository {
-    Integer save(Booking booking, TransactionContext context);
-    void update(Booking booking, TransactionContext context);
-
-    Optional<Booking> findById(Integer id, TransactionContext context);
-    List<Integer> findOccupiedSpots(Integer beachId, LocalDate date, TransactionContext context);
-}
+	public interface BookingRepository {
+		Integer save(Booking booking, TransactionContext context);
+		void update(Booking booking, TransactionContext context);
+		
+		Optional<Booking> findById(Integer id, TransactionContext context);
+		List<Integer> findOccupiedSpots(Integer beachId, LocalDate date, TransactionContext context);
+	}
 \end{lstlisting}
 
 % ================================================================================================ %
 
+\newpage
+
 \begin{lstlisting}[caption={Esempio Service (Orchestrazione e Transazionalità)}, label={lst:Service}]
-public class BookingService implements BookingUseCase {
-    //... attributi e costruttore (dependency injection) ...
-    
-    @Override
-    public void confirmBooking(Integer id) {
-        transactionManager.executeInTransaction(context -> {
-            Booking booking = getBookingOrThrow(id, context);
-
-            //delegazione della logica di validazione al dominio
-            booking.confirmBooking();
-
-            //persistenza dello stato modificato
-            bookingRepository.update(booking, context);
-        });
-    }
-}   
+	public class BookingService implements BookingUseCase {
+		//... attributi e costruttore (dependency injection) ...
+		
+		@Override
+		public void confirmBooking(Integer id) {
+			transactionManager.executeInTransaction(context -> {
+				Booking booking = getBookingOrThrow(id, context);
+				
+				//delegazione della logica di validazione al dominio
+				booking.confirmBooking();
+				
+				//persistenza dello stato modificato
+				bookingRepository.update(booking, context);
+			});
+		}
+	}   
 \end{lstlisting}
 
-\subsubsection{DDD-lite (Domain-Driven Design)}
-Per lo sviluppo del dominio è stato adottato l'approccio \textbf{DDD-lite}. Mentre l'architettura esagonale definisce i confini infrastrutturali, il \textbf{DDD} assicura che il nucleo del progetto rifletta fedelmente il linguaggio e le regole della realtà modellata.
+% ================================================================================================ %
 
-Il cuore di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (fatto di soli getter e setter), nel nostro dominio \textbf{le entità} hanno il compito di \textbf{assicurarsi l'integrità dei dati} sia in fase di modifica che di istanziamento. Ad esempio: la classe \texttt{Beach} presenta metodi interni dedicati a controllare la presenza di tutti i dati obbligatori e il rispetto dei vincoli di business prima che l'oggetto possa essere effettivamente creato o modificato (es. \autoref{lst:Entities}).
+\subsubsection{Tracciatura Architetturale degli Use Cases}
+Per dimostrare concretamente il funzionamento dell'Architettura Esagonale e l'interazione tra i package principali del progetto, di seguito viene analizzato il flusso di esecuzione step-by-step per tre casi d'uso fondamentali.
 
-In questa architettura abbiamo distinto:
+L'analisi segue la separazione architetturale adottata nel codice:
 \begin{itemize}
-    \item \textbf{Entities}: oggetti con un'identità univoca che persiste nel tempo (es. \autoref{lst:Entities});
-    \item \textbf{Value Objects}: oggetti definiti dai propri attributi e immutabili, implementati tramite i \textbf{Java Records} (es. \autoref{lst:ValueObjects}).
+	\item \textbf{\texttt{application.port.in}}: contiene le Port-In, cioè le interfacce dei casi d'uso invocate dall'esterno;
+	\item \textbf{\texttt{application.service}}: contiene i servizi applicativi che implementano i casi d'uso e orchestrano il flusso;
+	\item \textbf{\texttt{domain}}: contiene le entità, i value object e la logica di business;
+	\item \textbf{\texttt{application.port.out}}: contiene le Port-Out, cioè le interfacce richieste dal Core per accedere alla persistenza o ad altri servizi esterni;
+	\item \textbf{\texttt{infrastructure.persistence.jdbc}}: contiene gli adapter JDBC che implementano le Port-Out e traducono le operazioni del Core in query verso il database relazionale.
 \end{itemize}
 
-Altro elemento fondamentale dell'architettura sono gli \textbf{Aggregate}: unità logiche indivisibili che raggruppano entità strettamente correlate (come \texttt{Zone} e \texttt{Spot}) e i relativi \textbf{Value Objects}. In tale contesto, la \texttt{Beach} agisce come \textit{Aggregate Root}, rappresentando l'unico punto di accesso responsabile di ogni variazione di stato all'interno del gruppo e garante dell'integrità dell'intero aggregato.
+% ================================================================================================ %
 
-Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precisa scelta di pragmatismo architetturale: laddove il DDD rigoroso impone spesso una gestione asincrona degli eventi per disaccoppiare i diversi aggregati, noi abbiamo optato per un'\textbf{orchestrazione sincrona}; così facendo la logica di coordinamento è affidata agli Application Services, i quali invocano sequenzialmente i metodi di dominio sulle Aggregate Root interessate. Questo modello permette di \textbf{coordinare le azioni in maniera atomica} all'interno di un'unica transazione \textbf{ACID} sul database relazionale, \textbf{semplificando notevolmente le attività di test e manutenzione}, pur \textbf{preservando il totale incapsulamento} della logica di business.
+\newpage
+
+\paragraph{Create Customer Account (UC-03)} 
+Questo caso d'uso rappresenta una tipica operazione di scrittura, nella quale il layer applicativo coordina la creazione di oggetti di dominio e la loro persistenza tramite le Port-Out.
+
+\begin{figure}[H]
+	\centering
+	% DECOMMENTARE QUANDO L'IMMAGINE DELLA REGISTRAZIONE SARÀ PRONTA
+	% \includegraphics[width=0.7\textwidth]{img/flow_register.png} 
+	\caption{Diagramma di flusso dei package per UC-03}
+	\label{fig:flow_register}
+\end{figure}
+
+Facendo riferimento alla \autoref{fig:flow_register}, l'operazione si articola nei seguenti passaggi:
+\begin{description}
+	\item[\textbf{Step 1 -}] \textbf{invocazione della Port-In:} Un adapter primario, ad esempio l'interfaccia utente, raccoglie i dati dell'utente e invoca il metodo \texttt{register()} definito dalla Port-In \texttt{UserRegistrationUseCase} nel package \texttt{application.port.in.user}. Nel caso specifico della registrazione di un Customer, la richiesta è rappresentata da \texttt{CreateCustomerRequest} e l'implementazione concreta è \texttt{CreateCustomerService} (nel package \texttt{application.service.user}).
+	
+	\item[\textbf{Step 2 -}] \textbf{orchestrazione applicativa e transazione:} La logica comune di registrazione è centralizzata nella classe astratta \texttt{CreateUserService}, estesa da \texttt{CreateCustomerService}. Il metodo \texttt{register()} calcola l'hash della password tramite \texttt{BCrypt} e avvia una transazione attraverso la Port-Out \texttt{TransactionManager} (definita in \texttt{application.port.out}).
+	
+	\item[\textbf{Step 3 -}] \textbf{creazione degli oggetti di dominio:} All'interno della transazione, \\ \texttt{CreateCustomerService} implementa il metodo \texttt{registerUser()}. In questa fase vengono creati un value object \texttt{Address} (nel package \texttt{domain.common}) e, successivamente, l'entità \texttt{Customer} (nel package \texttt{domain.user}), i quali verificano che i dati forniti rispettino le Business Rules definite dal dominio. Una volta validati, i dati dell'indirizzo vengono prima persistiti tramite la Port-Out \texttt{AddressRepository}, ottenendo l'identificativo da associare al \texttt{Customer}.
+	
+	\item[\textbf{Step 4 -}] \textbf{persistenza tramite Port-Out:} Dopo la costruzione dell'entità \texttt{Customer}, il servizio applicativo invoca il metodo \texttt{save()} della Port-Out \texttt{UserRepository} (definita nel package \texttt{application.port.out.user}). Tale approccio consente al Core di rimanere indipendente dai dettagli implementativi dell'infrastruttura, interagendo esclusivamente con l'interfaccia esposta dalla repository.
+	
+	\item[\textbf{Step 5 -}] \textbf{esecuzione JDBC nell'adapter secondario:} L'implementazione concreta della persistenza si trova nel package \texttt{infrastructure.persistence.jdbc.user}, in particolare, in questo caso, nella classe \texttt{JdbcCustomerRepository}. L'adapter JDBC traduce la richiesta di salvataggio in operazioni SQL sul database MySQL e restituisce al servizio l'ID generato.
+\end{description}
+
+% ================================================================================================ %
+
+\newpage
+
+\paragraph{2. Login to Account (UC-01)}
+Il login è un'operazione prevalentemente di lettura e validazione incrociata, utile per illustrare l'interrogazione dello stato senza mutazioni.
+
+\begin{figure}[H]
+	\centering
+	% DECOMMENTARE QUANDO L'IMMAGINE DEL LOGIN SARÀ PRONTA
+	% \includegraphics[width=0.7\textwidth]{img/flow_login.png} 
+	\caption{Diagramma di flusso dei package per UC-01}
+	\label{fig:flow_login}
+\end{figure}
+
+Facendo riferimento alla \autoref{fig:flow_login}, il processo segue questi step:
+\begin{description}
+	\item[\textbf{Step 1 -}] \textbf{invocazione (Main Adapter $\rightarrow$ Service):} 
+	Un adapter primario invoca il metodo \texttt{login()} esposto da \texttt{AuthenticationService} (nel package \texttt{application.service.user}). Il servizio implementa \texttt{AuthenticationUseCase}, interfaccia collocata in \\ \texttt{application.port.out.user}.
+	
+	\item[\textbf{Step 2 -}] \textbf{query credenziali (Service $\rightarrow$ Port-Out $\rightarrow$ Adapter JDBC):} 
+	\\ \texttt{AuthenticationService} esegue l'operazione all'interno di una transazione tramite \\ \texttt{TransactionManager}. Successivamente richiede a \texttt{UserRepository} l'hash della password tramite \texttt{findPassword()}. L'implementazione JDBC (\texttt{JdbcUserRepository} nel package \texttt{infrastructure.persistence.jdbc.user}) esegue la query sul database e restituisce il dato al servizio.
+	
+	\item[\textbf{Step 3 -}] \textbf{validazione e query stato utente (Service $\rightarrow$ Domain / Port-Out):} 
+	Il servizio verifica la password tramite \texttt{BCrypt}. Se la validazione ha esito positivo, recupera l'utente tramite \texttt{userRepository.findByIdentifier()}, ottenendo un oggetto della gerarchia di dominio \texttt{User}. Successivamente interroga \texttt{BanRepository}, implementato lato infrastruttura, in questo caso, da \texttt{JdbcBanRepository}, per verificare che l'utente non sia bannato dall'applicazione. Nel caso in cui l'utente sia un \texttt{Customer}, viene inoltre controllato lo stato dell'account tramite \texttt{customer.isActive()}.
+	
+	\item[\textbf{Step 4 -}] \textbf{ritorno DTO (Service $\rightarrow$ Adapter primario):} 
+	Verificati tutti i requisiti di sicurezza, il servizio restituisce un DTO \texttt{LoginResult} (definito nel package \texttt{application.port.out.user}) contenente l'identificativo dell'utente, lo stato OTP e il ruolo. Tale risultato viene restituito all'adapter primario, che potrà utilizzarlo per gestire la sessione applicativa.
+\end{description}
+
+% ================================================================================================ %
+
+\newpage
+
+\paragraph{3. Create Booking (UC-05)}
+Questo caso d'uso rappresenta uno dei flussi più articolati del progetto, poiché coinvolge più Port-Out, diverse entità di dominio e un servizio di dominio dedicato al calcolo del prezzo.
+
+\begin{figure}[H]
+	\centering
+	% DECOMMENTARE QUANDO L'IMMAGINE DEL BOOKING SARÀ PRONTA
+	% \includegraphics[width=0.7\textwidth]{img/flow_booking.png} 
+	\caption{Diagramma di flusso dei package per UC-05}
+	\label{fig:flow_booking}
+\end{figure}
+
+Facendo riferimento alla \autoref{fig:flow_booking}, il flusso si compone di:
+\begin{description}
+	\item[\textbf{Step 1 -}] \textbf{invocazione della Port-In:} L'adapter primario passa un oggetto \texttt{CreateBookingCommand} (definito in \texttt{application.port.in.booking}) al metodo \texttt{createBooking()} della Port-In \texttt{CreateBookingUseCase}. L'implementazione concreta del caso d'uso è \texttt{CreateBookingService}, situato nel package \texttt{application.service.booking}.
+	
+	\item[\textbf{Step 2 -}] \textbf{recupero della spiaggia e verifica stato:} \texttt{CreateBookingService} apre una transazione tramite \texttt{TransactionManager} e usa la Port-Out \texttt{BeachRepository} (definita in \texttt{application.port.out.beach}) per recuperare l'aggregato \texttt{Beach} tramite \texttt{findById()}. L'entità \texttt{Beach} viene poi interrogata per verificare che la spiaggia sia attiva tramite \texttt{isActive()}.
+	
+	\item[\textbf{Step 3 -}] \textbf{controlli di autorizzazione e ban:} Il servizio consulta \texttt{BanRepository} per verificare che il cliente non sia bannato dall'applicazione tramite \texttt{isBannedFromApp()} e non sia bannato dalla specifica spiaggia tramite \texttt{isBannedFromBeach()}.
+	
+	\item[\textbf{Step 4 -}] \textbf{verifica della disponibilità:} Il servizio utilizza la Port-Out \texttt{AvailabilityQuery} (nel package \texttt{application.port.out.booking}) per recuperare lo stato delle risorse già prenotate nella data richiesta. In particolare, vengono usati \texttt{getBookedParking()} e \texttt{getBookedInventory()}. I risultati sono rappresentati dai DTO \texttt{BookedParkingSpaces} e \texttt{BookedInventory}. La disponibilità viene confrontata con le capacità della spiaggia, rappresentate da oggetti di dominio come \texttt{Parking} e \texttt{BeachInventory} nel package \texttt{domain.beach}.
+	
+	\item[\textbf{Step 5 -}] \textbf{verifica degli spot:} Prima della creazione della prenotazione, il servizio usa \\ \texttt{BeachRepository.doSpotsBelongToBeach()} per assicurarsi che gli spot richiesti appartengano effettivamente alla spiaggia selezionata.
+	
+	\item[\textbf{Step 6 -}] \textbf{creazione dell'entità di dominio:} Superati i controlli, il servizio istanzia \texttt{Booking} (entità del package \texttt{domain.booking}). Per rappresentare i parcheggi richiesti viene creato anche un oggetto \texttt{BookingParking}. Lo stato iniziale della prenotazione viene impostato a \texttt{BookingStatus.PENDING}.
+	
+	\item[\textbf{Step 7 -}] \textbf{calcolo del prezzo:} Il prezzo totale viene calcolato tramite il domain service \texttt{PriceCalculator} (nel package \texttt{domain.booking}) invocando \texttt{PriceCalculator.calculateTotal()}. Il valore calcolato viene poi assegnato alla prenotazione tramite \texttt{booking.updateTotalPrice()}.
+	
+	\item[\textbf{Step 8 -}] \textbf{persistenza tramite adapter JDBC:} Infine, il servizio invoca la Port-Out \\ \texttt{BookingRepository} (definita in \texttt{application.port.out.booking}) mediante \\ \texttt{bookingRepository.save()}. L'implementazione concreta è fornita dall'adapter \\ \texttt{JdbcBookingRepository} (nel package \texttt{infrastructure.persistence.jdbc.booking}), mentre le query di disponibilità sono implementate da \texttt{JdbcAvailabilityQuery}. Entrambi comunicano con il database MySQL senza introdurre dipendenze infrastrutturali nel Core.
+\end{description}
+
+In sintesi, i tre casi d'uso seguono lo stesso principio architetturale: l'esterno invoca una Port-In, il servizio applicativo orchestra il caso d'uso, il dominio incapsula le regole principali e l'accesso ai dati avviene esclusivamente attraverso Port-Out implementate dagli adapter JDBC. In questo modo, package come \texttt{domain} e \texttt{application} restano indipendenti da \texttt{infrastructure.persistence.jdbc} e dal database MySQL.
+
+% ================================================================================================ %
+
+\subsubsection{DDD-lite (Domain-Driven Design)}
+Per la modellazione della logica di business all'interno del Core è stato adottato l'approccio \textbf{DDD-lite} (o \textit{Tactical DDD}). Mentre l'Architettura Esagonale definisce i confini infrastrutturali del sistema, il DDD assicura che il nucleo del software rifletta fedelmente il linguaggio e le regole del dominio applicativo.
+
+Il pilastro di questo approccio è il \textbf{Rich Domain Model}: a differenza di un modello anemico (costituito da soli \textit{getter} e \textit{setter}), nel nostro sistema le entità possiedono comportamenti specifici e hanno il compito di \textbf{garantire le invarianti di dominio}, sia in fase di istanziazione che di mutazione dello stato. Ad esempio, la classe \texttt{Beach} espone metodi interni dedicati a verificare la presenza dei dati obbligatori e il rigoroso rispetto dei vincoli di business prima di consentire qualsiasi alterazione del proprio stato (es. \autoref{lst:Entities}).
+
+All'interno dell'architettura abbiamo tracciato una netta distinzione tra:
+\begin{itemize}
+	\item \textbf{Entities}: oggetti dotati di un'identità univoca che persiste nel tempo, indipendentemente dal mutare dei loro attributi (es. \autoref{lst:Entities});
+	\item \textbf{Value Objects}: oggetti descritti esclusivamente dalle proprie caratteristiche e intrinsecamente immutabili, implementati in modo nativo e sicuro tramite i \textbf{Java Records} (es. \autoref{lst:ValueObjects}).
+\end{itemize}
+
+Questi elementi sono raggruppati in \textbf{Aggregates}, ovvero cluster di entità e Value Object trattati come un'unità singola per le modifiche dei dati. In questo contesto, l'entità \texttt{Beach} funge da \textit{Aggregate Root}: rappresenta l'unico punto di accesso (gateway) autorizzato per manipolare elementi interni strettamente correlati, come \texttt{Zone} e \texttt{Spot}, garantendo l'integrità dell'intero aggregato.
+
+Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precisa e pragmatica scelta architetturale. Laddove un DDD rigoroso impone spesso una comunicazione asincrona tramite \textit{Domain Events} (accettando una \textit{Eventual Consistency} tra aggregati distribuiti), noi abbiamo optato per un'\textbf{orchestrazione sincrona}. La logica di coordinamento è affidata agli \textit{Application Services}, i quali invocano sequenzialmente i metodi sulle \textit{Aggregate Roots} interessate. Questo modello permette di confinare le azioni all'interno di un'unica transazione \textbf{ACID} sul database relazionale (consistenza forte), semplificando notevolmente le attività di test e manutenzione, pur preservando il totale incapsulamento della logica di business.
 
 % ================================================================================================ %
 \newpage
 
- \begin{lstlisting}[caption={Esempio Entity (Integrità dello stato e logica di business)}, label={lst:Entities}]
-public class Beach {
-    private final Integer id; //identità univoca
-    private BeachInventory beachInventory; //value object composito
-    private boolean active;
-    private boolean closed;
-
-    //... costruttore omesso ...
-
-    //metodo di dominio con validazione interna
-    public void setActive(boolean active) {
-        if (active) {
-            validateActivationRequirements();
-        }
-        this.active = active;
-    }
-
-    private void validateActivationRequirements() {
-        if (beachInventory == null)
-        	throw new IllegalStateException("Missing inventory");
-        //... altri controlli di business ...
-    }
-}
+\begin{lstlisting}[caption={Esempio Entity (Integrità dello stato e logica di business)}, label={lst:Entities}]
+	public class Beach {
+		private final Integer id; //identità univoca
+		private BeachInventory beachInventory; //value object composito
+		private boolean active;
+		private boolean closed;
+		
+		//... costruttore omesso ...
+		
+		//metodo di dominio con validazione interna
+		public void setActive(boolean active) {
+			if (active) {
+				validateActivationRequirements();
+			}
+			this.active = active;
+		}
+		
+		private void validateActivationRequirements() {
+			if (beachInventory == null)
+			throw new IllegalStateException("Missing inventory");
+			//... altri controlli di business ...
+		}
+	}
 \end{lstlisting}
- 
+
 Un aspetto centrale nella progettazione è la gestione del ciclo di vita dei \textbf{Value Objects}, improntata alla massima protezione dello stato tramite due principi cardine:
 
 \begin{itemize}
-    \item \textbf{Ricostruzione del Modello}: le entità non vengono semplicemente lette dal database, ma \textit{ricostituite}. Lo strato di persistenza fornisce i dati affinché il Core possa istanziare nuovamente l'entità, garantendo che i vincoli vengano verificati nel momento stesso della creazione in memoria.
-    \item \textbf{Metodi Wither e Immutabilità}: invece di alterare lo stato di un'istanza esistente tramite \textit{setter}, le modifiche generano una \textbf{nuova istanza} dell'oggetto (\autoref{lst:ValueObjects}). Questo garantisce l'\textbf{immutabilità} durante il ciclo di vita in memoria, facilitando il debugging e assicurando la consistenza tra gli strati applicativi.
+	\item \textbf{Ricostruzione del Modello}: le entità non vengono semplicemente lette dal database, ma \textit{ricostituite}. Lo strato di persistenza fornisce i dati affinché il Core possa istanziare nuovamente l'entità, garantendo che i vincoli vengano verificati nel momento stesso della creazione in memoria.
+	\item \textbf{Metodi Wither e Immutabilità}: invece di alterare lo stato di un'istanza esistente tramite \textit{setter}, le modifiche generano una \textbf{nuova istanza} dell'oggetto (\autoref{lst:ValueObjects}). Questo garantisce l'\textbf{immutabilità} durante il ciclo di vita in memoria, facilitando il debugging e assicurando la consistenza tra gli strati applicativi.
 \end{itemize}
 
 \begin{lstlisting}[caption={Value Object: Integrità alla creazione e pattern Wither}, label={lst:ValueObjects}]
-public record BeachInventory(int countExtraSdraio, int countCamerini) {
-    //costruttore compatto per validare le regole di business
-    public BeachInventory {
-        if (countExtraSdraio < 0 || countCamerini < 0) {
-            throw new IllegalArgumentException("ERROR: counts cannot be negative");
-        }
-    }
-
-    //metodo Wither: crea una nuova istanza immutabile con un dato aggiornato
-    public BeachInventory withCountCamerini(int countCamerini) {
-        return new BeachInventory(this.countExtraSdraio, countCamerini);
-    }
-}
+	public record BeachInventory(int countExtraSdraio, int countCamerini) {
+		//costruttore compatto per validare le regole di business
+		public BeachInventory {
+			if (countExtraSdraio < 0 || countCamerini < 0) {
+				throw new IllegalArgumentException("ERROR: counts cannot be negative");
+			}
+		}
+		
+		//metodo Wither: crea una nuova istanza immutabile con un dato aggiornato
+		public BeachInventory withCountCamerini(int countCamerini) {
+			return new BeachInventory(this.countExtraSdraio, countCamerini);
+		}
+	}
 \end{lstlisting}
 
 % ================================================================================================ %

@@ -1,5 +1,6 @@
-package com.example.s_balneare.application.port.out.user;
+package com.example.s_balneare.application.port.in.user;
 
+import com.example.s_balneare.application.port.out.user.LoginResult;
 import com.example.s_balneare.application.service.user.AuthenticationService;
 
 /**

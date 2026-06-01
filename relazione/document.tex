@@ -347,7 +347,7 @@ Lo strato \textbf{\texttt{application}} funge da ponte tra il mondo esterno e il
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{img/hexagonal_diagram} 
-	\caption{Schema dell'architettura esagonale con esempi di classi del progetto: le Port-In, come \texttt{CreateBeachUseCase}, vengono implementate dai servizi applicativi, come \texttt{CreateBeachService}; questi orchestrano le entità di dominio, come \texttt{Beach}, e accedono alla persistenza tramite Port-Out, come \texttt{BeachRepository}, implementate dagli adapter JDBC.}
+	\caption{Schema dell'architettura esagonale con esempi di classi del progetto: le Port-In vengono implementate dai servizi applicativi; questi orchestrano le entità di dominio e accedono alla persistenza tramite Port-Out implementate dagli adapter JDBC}
 	\label{fig:hex}
 \end{figure}
 
@@ -397,7 +397,7 @@ Lo strato \textbf{\texttt{application}} funge da ponte tra il mondo esterno e il
 % ================================================================================================ %
 
 \subsubsection{Tracciatura Architetturale degli Use Cases}
-Per dimostrare concretamente il funzionamento dell'Architettura Esagonale e l'interazione tra i package principali del progetto, di seguito viene analizzato il flusso di esecuzione step-by-step per tre casi d'uso fondamentali.
+Per dimostrare concretamente il funzionamento dell'Architettura Esagonale e l'interazione tra i package principali del progetto, di seguito viene analizzato il flusso di esecuzione per tre casi d'uso fondamentali.
 
 L'analisi segue la separazione architetturale adottata nel codice:
 \begin{itemize}
@@ -417,15 +417,14 @@ Questo caso d'uso rappresenta una tipica operazione di scrittura, nella quale il
 
 \begin{figure}[H]
 	\centering
-	% DECOMMENTARE QUANDO L'IMMAGINE DELLA REGISTRAZIONE SARÀ PRONTA
-	% \includegraphics[width=0.7\textwidth]{img/flow_register.png} 
+	\includegraphics[width=1\textwidth]{img/schema UC-03.png} 
 	\caption{Diagramma di flusso dei package per UC-03}
 	\label{fig:flow_register}
 \end{figure}
 
 Facendo riferimento alla \autoref{fig:flow_register}, l'operazione si articola nei seguenti passaggi:
 \begin{description}
-	\item[\textbf{Step 1 -}] \textbf{invocazione della Port-In:} Un adapter primario, ad esempio l'interfaccia utente, raccoglie i dati dell'utente e invoca il metodo \texttt{register()} definito dalla Port-In \texttt{UserRegistrationUseCase} nel package \texttt{application.port.in.user}. Nel caso specifico della registrazione di un Customer, la richiesta è rappresentata da \texttt{CreateCustomerRequest} e l'implementazione concreta è \texttt{CreateCustomerService} (nel package \texttt{application.service.user}).
+	\item[\textbf{Step 1 -}] \textbf{invocazione della Port-In:} Un adapter primario, ad esempio l'interfaccia utente, raccoglie i dati dell'utente e invoca il metodo \texttt{register()} definito dalla Port-In \texttt{UserRegistrationUseCase} nel package \texttt{application.port.in.user}. Nel caso specifico della registrazione di un Customer, la richiesta è rappresentata da \texttt{CreateCustomerRequest} e l'implementazione è \texttt{CreateCustomerService} (nel package \texttt{application.service.user}).
 	
 	\item[\textbf{Step 2 -}] \textbf{orchestrazione applicativa e transazione:} La logica comune di registrazione è centralizzata nella classe astratta \texttt{CreateUserService}, estesa da \texttt{CreateCustomerService}. Il metodo \texttt{register()} calcola l'hash della password tramite \texttt{BCrypt} e avvia una transazione attraverso la Port-Out \texttt{TransactionManager} (definita in \texttt{application.port.out}).
 	
@@ -445,8 +444,7 @@ Il login è un'operazione prevalentemente di lettura e validazione incrociata, u
 
 \begin{figure}[H]
 	\centering
-	% DECOMMENTARE QUANDO L'IMMAGINE DEL LOGIN SARÀ PRONTA
-	% \includegraphics[width=0.7\textwidth]{img/flow_login.png} 
+	\includegraphics[width=0.9\textwidth]{img/schema UC-01.pdf} 
 	\caption{Diagramma di flusso dei package per UC-01}
 	\label{fig:flow_login}
 \end{figure}
@@ -454,7 +452,7 @@ Il login è un'operazione prevalentemente di lettura e validazione incrociata, u
 Facendo riferimento alla \autoref{fig:flow_login}, il processo segue questi step:
 \begin{description}
 	\item[\textbf{Step 1 -}] \textbf{invocazione (Main Adapter $\rightarrow$ Service):} 
-	Un adapter primario invoca il metodo \texttt{login()} esposto da \texttt{AuthenticationService} (nel package \texttt{application.service.user}). Il servizio implementa \texttt{AuthenticationUseCase}, interfaccia collocata in \\ \texttt{application.port.out.user}.
+	Un adapter primario invoca il metodo \texttt{login()} esposto da \texttt{AuthenticationService} (nel package \texttt{application.service.user}). Il servizio implementa \texttt{AuthenticationUseCase}, interfaccia collocata in \\ \texttt{application.port.in.user}.
 	
 	\item[\textbf{Step 2 -}] \textbf{query credenziali (Service $\rightarrow$ Port-Out $\rightarrow$ Adapter JDBC):} 
 	\\ \texttt{AuthenticationService} esegue l'operazione all'interno di una transazione tramite \\ \texttt{TransactionManager}. Successivamente richiede a \texttt{UserRepository} l'hash della password tramite \texttt{findPassword()}. L'implementazione JDBC (\texttt{JdbcUserRepository} nel package \texttt{infrastructure.persistence.jdbc.user}) esegue la query sul database e restituisce il dato al servizio.

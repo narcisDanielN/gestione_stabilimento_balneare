@@ -372,7 +372,6 @@ Lo strato \textbf{\texttt{application}} funge da ponte tra il mondo esterno e il
 \end{lstlisting}
 
 % ================================================================================================ %
-
 \newpage
 
 \begin{lstlisting}[caption={Esempio Service (Orchestrazione e Transazionalità)}, label={lst:Service}]
@@ -409,7 +408,6 @@ L'analisi segue la separazione architetturale adottata nel codice:
 \end{itemize}
 
 % ================================================================================================ %
-
 \newpage
 
 \paragraph{Create Customer Account (UC-03)} 
@@ -436,7 +434,6 @@ Facendo riferimento alla \autoref{fig:flow_register}, l'operazione si articola n
 \end{description}
 
 % ================================================================================================ %
-
 \newpage
 
 \paragraph{2. Login to Account (UC-01)}
@@ -465,7 +462,6 @@ Facendo riferimento alla \autoref{fig:flow_login}, il processo segue questi step
 \end{description}
 
 % ================================================================================================ %
-
 \newpage
 
 \paragraph{3. Create Booking (UC-05)}
@@ -473,8 +469,7 @@ Questo caso d'uso rappresenta uno dei flussi più articolati del progetto, poich
 
 \begin{figure}[H]
 	\centering
-	% DECOMMENTARE QUANDO L'IMMAGINE DEL BOOKING SARÀ PRONTA
-	% \includegraphics[width=0.7\textwidth]{img/flow_booking.png} 
+	\includegraphics[width=1\textwidth]{img/schema UC-05.png} 
 	\caption{Diagramma di flusso dei package per UC-05}
 	\label{fig:flow_booking}
 \end{figure}
@@ -492,6 +487,8 @@ Facendo riferimento alla \autoref{fig:flow_booking}, il flusso si compone di:
 	\item[\textbf{Step 5 -}] \textbf{verifica degli spot:} Prima della creazione della prenotazione, il servizio usa \\ \texttt{BeachRepository.doSpotsBelongToBeach()} per assicurarsi che gli spot richiesti appartengano effettivamente alla spiaggia selezionata.
 	
 	\item[\textbf{Step 6 -}] \textbf{creazione dell'entità di dominio:} Superati i controlli, il servizio istanzia \texttt{Booking} (entità del package \texttt{domain.booking}). Per rappresentare i parcheggi richiesti viene creato anche un oggetto \texttt{BookingParking}. Lo stato iniziale della prenotazione viene impostato a \texttt{BookingStatus.PENDING}.
+
+% ================================================================================================ %
 	
 	\item[\textbf{Step 7 -}] \textbf{calcolo del prezzo:} Il prezzo totale viene calcolato tramite il domain service \texttt{PriceCalculator} (nel package \texttt{domain.booking}) invocando \texttt{PriceCalculator.calculateTotal()}. Il valore calcolato viene poi assegnato alla prenotazione tramite \texttt{booking.updateTotalPrice()}.
 	
@@ -499,8 +496,6 @@ Facendo riferimento alla \autoref{fig:flow_booking}, il flusso si compone di:
 \end{description}
 
 In sintesi, i tre casi d'uso seguono lo stesso principio architetturale: l'esterno invoca una Port-In, il servizio applicativo orchestra il caso d'uso, il dominio incapsula le regole principali e l'accesso ai dati avviene esclusivamente attraverso Port-Out implementate dagli adapter JDBC. In questo modo, package come \texttt{domain} e \texttt{application} restano indipendenti da \texttt{infrastructure.persistence.jdbc} e dal database MySQL.
-
-% ================================================================================================ %
 
 \subsubsection{DDD-lite (Domain-Driven Design)}
 Per la modellazione della logica di business all'interno del Core è stato adottato l'approccio \textbf{DDD-lite} (o \textit{Tactical DDD}). Mentre l'Architettura Esagonale definisce i confini infrastrutturali del sistema, il DDD assicura che il nucleo del software rifletta fedelmente il linguaggio e le regole del dominio applicativo.
@@ -521,28 +516,28 @@ Il nostro approccio \textbf{DDD-lite} si distingue dal "Full DDD" per una precis
 \newpage
 
 \begin{lstlisting}[caption={Esempio Entity (Integrità dello stato e logica di business)}, label={lst:Entities}]
-	public class Beach {
-		private final Integer id; //identità univoca
-		private BeachInventory beachInventory; //value object composito
-		private boolean active;
-		private boolean closed;
+public class Beach {
+	private final Integer id; //identità univoca
+	private BeachInventory beachInventory; //value object
+	private boolean active;
+	private boolean closed;
 		
-		//... costruttore omesso ...
+	//... costruttore omesso ...
 		
-		//metodo di dominio con validazione interna
-		public void setActive(boolean active) {
-			if (active) {
-				validateActivationRequirements();
-			}
-			this.active = active;
+	//metodo di dominio con validazione interna
+	public void setActive(boolean active) {
+		if (active) {
+			validateActivationRequirements();
 		}
-		
-		private void validateActivationRequirements() {
-			if (beachInventory == null)
-			throw new IllegalStateException("Missing inventory");
-			//... altri controlli di business ...
-		}
+		this.active = active;
 	}
+		
+	private void validateActivationRequirements() {
+		if (beachInventory == null)
+		throw new IllegalStateException("Missing inventory");
+		//... altri controlli di business ...
+	}
+}
 \end{lstlisting}
 
 Un aspetto centrale nella progettazione è la gestione del ciclo di vita dei \textbf{Value Objects}, improntata alla massima protezione dello stato tramite due principi cardine:
@@ -553,19 +548,19 @@ Un aspetto centrale nella progettazione è la gestione del ciclo di vita dei \te
 \end{itemize}
 
 \begin{lstlisting}[caption={Value Object: Integrità alla creazione e pattern Wither}, label={lst:ValueObjects}]
-	public record BeachInventory(int countExtraSdraio, int countCamerini) {
-		//costruttore compatto per validare le regole di business
-		public BeachInventory {
-			if (countExtraSdraio < 0 || countCamerini < 0) {
-				throw new IllegalArgumentException("ERROR: counts cannot be negative");
-			}
-		}
-		
-		//metodo Wither: crea una nuova istanza immutabile con un dato aggiornato
-		public BeachInventory withCountCamerini(int countCamerini) {
-			return new BeachInventory(this.countExtraSdraio, countCamerini);
+public record BeachInventory(int countExtraSdraio, int countCamerini) {
+	//costruttore compatto per validare le regole di business
+	public BeachInventory {
+		if (countExtraSdraio < 0 || countCamerini < 0) {
+			throw new IllegalArgumentException("ERROR: counts cannot be negative");
 		}
 	}
+		
+	//metodo Wither: crea una nuova istanza immutabile con un dato aggiornato
+	public BeachInventory withCountCamerini(int countCamerini) {
+		return new BeachInventory(this.countExtraSdraio, countCamerini);
+	}
+}
 \end{lstlisting}
 
 % ================================================================================================ %
@@ -1083,7 +1078,7 @@ I test di questo layer verificano la corretta orchestrazione dei flussi applicat
 	\end{itemize}
 
 % ================================================================================================ %
-\newpage
+	\newpage
 		
 	\item \underline{\textbf{Autenticazione e modifiche account (\texttt{AuthenticationService}, \texttt{CreateUserService},}} \\ \underline{\textbf{\texttt{ManageUserService}):}}
 	\label{itm:application_user}
